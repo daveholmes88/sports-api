@@ -6,7 +6,7 @@ const handler = async () => {
     console.log(token)
     const header = [['Home Team', 'HS', 'Away Team', 'AS']]
     let games = [];
-    for (let i = 1; i < 2; i++) {
+    for (let i = 1; i < 39; i++) {
         // await new Promise(resolve => setTimeout(resolve, 11000));
         const json = await fetch(`https://api.football-data.org/v4/competitions/PL/matches?status=FINISHED&season=2022&matchday=${i}`, {
             headers: {
@@ -27,7 +27,7 @@ const handler = async () => {
         header,
         separator: ','
       });
-    fs.writeFile('../csv/eplSchedule.csv', csvFromGames, err => {
+    fs.writeFile('./csv/eplSchedule.csv', csvFromGames, err => {
         if (err) console.log(err)
         else console.log('csv file written')
     })

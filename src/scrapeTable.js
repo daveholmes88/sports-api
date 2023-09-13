@@ -1,9 +1,15 @@
-
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 
+// NBA advanced stats
+// const url = 'https://www.nba.com/stats/teams/advanced?dir=A&sort=TEAM_NAME';
+// const table = '.Crom_table__p1iZz'
+// const fileName = 'nba_advanced'
 
-const url = 'https://www.nba.com/stats/teams/advanced?dir=A&sort=TEAM_NAME';
+ // EPL advanced stats
+ const url = 'https://fbref.com/en/comps/9/2022-2023/stats/2022-2023-Premier-League-Stats';
+ const tableSelector = '#stats_squads_standard_for';
+ const fileName = 'epl_advanced'
 
 async function scrapeTableData() {
   try {
@@ -16,9 +22,10 @@ async function scrapeTableData() {
     await page.goto(url, {
         waitUntil: "domcontentloaded",
       });
-    await page.waitForSelector('.Crom_table__p1iZz');
+    await page.waitForSelector(tableSelector);
     const tableData = await page.evaluate(() => {
-        const table = document.querySelector('.Crom_table__p1iZz')
+        const tableSelector = '#stats_squads_standard_for';
+        const table = document.querySelector(tableSelector)
         const rows = table.querySelectorAll('tr');
         const data = [];
 
@@ -34,7 +41,7 @@ async function scrapeTableData() {
         return data;
     });
 
-    fs.writeFileSync('../csv/nba_advanced.csv', tableData.join('\n'));
+    fs.writeFileSync(`./csv/${fileName}.csv`, tableData.join('\n'));
 
     console.log('Table data saved.');
     await browser.close();

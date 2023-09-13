@@ -19,7 +19,7 @@ const handler = async () => {
         header,
         separator: ','
       });
-    fs.writeFile('../csv/nbaSchedule.csv', csvFromGames, err => {
+    fs.writeFile('./csv/nbaSchedule.csv', csvFromGames, err => {
         if (err) console.log(err)
         else console.log('csv file written')
     })
