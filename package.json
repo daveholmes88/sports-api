@@ -4,7 +4,8 @@
     "eplSchedule": "node src/eplSchedule",
     "nbaSchedule": "node src/nbaSchedule",
     "nflSchedule": "node src/nflSchedule",
-    "scrapeTable": "node src/scrapeTable"
+    "scrapeTable": "node src/scrapeTable",
+    "prettier": "npx prettier . --write"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
@@ -17,5 +18,8 @@
     "puppeteer": "^21.1.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.6"
+  },
+  "devDependencies": {
+    "prettier": "3.0.3"
   }
 }
