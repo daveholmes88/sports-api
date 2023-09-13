@@ -1,0 +1,17 @@
+# Add trailing comma's whenever applicable
+trailingComma: 'es5'
+
+# Adds 4 spaces per indentation
+tabWidth: 4
+
+# Adds semi colon after each statement
+semi: true
+
+# Uses single quotes instead of double quotes
+singleQuote: true
+
+# Removes perentheses around arrow functions with just 1 perameter
+arrowParens: 'avoid'
+
+# Sets one empty line at the end of each file
+endOfLine: 'auto'
