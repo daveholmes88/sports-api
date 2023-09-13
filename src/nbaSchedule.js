@@ -8,9 +8,9 @@ const handler = async () => {
         const json = await fetch(`https://www.balldontlie.io/api/v1/games?start_date=%272022-10-01&end_date=2023-07-01&per_page=100&page=${i}`)
         const data = await json.json()
         data.data.forEach(d => {
-            const homeTeam = d.home_team.name;
+            const homeTeam = d.home_team.full_name;
             const homeScore = d.home_team_score;
-            const awayTeam = d.visitor_team.name;
+            const awayTeam = d.visitor_team.full_name;
             const awayScore = d.visitor_team_score;
             games.push([homeTeam, homeScore, awayTeam, awayScore])
         })
