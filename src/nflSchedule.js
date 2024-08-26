@@ -6,7 +6,7 @@ const handler = async () => {
     let games = [];
     for (let i = 1; i < 19; i++) {
         const jsonWeek = await fetch(
-            `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2022&week=${i}`
+            `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&week=${i}`
         );
         const weekData = await jsonWeek.json();
         const gameIds = [];
@@ -33,7 +33,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile('./csv/nflSchedule.csv', csvFromGames, err => {
+    fs.writeFile('../csv/nflSchedule.csv', csvFromGames, err => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
