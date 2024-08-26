@@ -5,6 +5,7 @@ require('dotenv').config()
 
 const { Pool } = pkg
 const password = process.env.PASSWORD
+const week = 1
 
 const pool = new Pool({
   user: 'davidholmes',
@@ -78,6 +79,17 @@ const conferences = {
     ArizonaCardinals: 'nfc',
 }
 
+const bye = {
+    5: ['Detroit Lions', 'San Diego Chargers', 'Philadelphia Eagles', 'Tennessee Titans'],
+    6: ['Kansas City Chiefs', 'Los Angeles Rams', 'Miami Dolphins', 'Minnesota Vikings'],
+    7: ['Chicago Bears', 'Dallas Cowboys'],
+    9: ['Pittsburgh Steelers', 'San Francisco 49ers'],
+    10: ['Cleveland Browns', 'Green Bay Packers', 'Oakland Raiders', 'Seattle Seahawks'],
+    11: ['Arizona Cardinals', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers'], 
+    12: ['Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New Orleans Saints', 'New York Jets'],
+    14: ['Baltimore Ravens', 'Denver Broncos', 'Houston Texans', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders']
+}
+
 const sameDivision = (away, home) => {
     return divisions[away.split(' ').join('')] === divisions[home.split(' ').join('')] 
 }
@@ -86,11 +98,29 @@ const differentConference = (away, home) => {
     return conferences[away.split(' ').join('')] !== conferences[home.split(' ').join('')]
 }
 
+const byeLastWeek = (home, away, spread) => {
+    const byeLastWeek = bye[week-1]
+    if (byeLastWeek) {
+        if (byeLastWeek.find(team => team === home.team)) {
+            const { ranking } = home
+            if (ranking < -2) spread += 4
+            if (ranking >= -2 && ranking < 2) spread += 5
+            if (ranking >= 2) spread += 7
+        }
+        if (byeLastWeek.find(team => team === away.team)) {
+            const { ranking } = away
+            if (ranking < -2) spread -= 5
+            if (ranking >= -2 && ranking < 2) spread -= 6
+            if (ranking >= 2) spread -= 8
+        }
+    }
+    return spread
+}
+
 const handler = async () => {
     const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Spread']];
     const games = [];
     const end = []
-    const week = 1
     // for (let i = 1; i < 19; i++) {
         const jsonWeek = await fetch(
             `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${week}`
@@ -121,6 +151,7 @@ const handler = async () => {
             if (division) spread -= 1
             const conference = differentConference(awayTeam, homeTeam)
             if (conference) spread += 1 
+            spread = byeLastWeek(home, away, spread)
             end.push([home.team, home.ranking, away.team, away.ranking, division, conference, Math.round(spread * 100) / 100])
         })
         client.release();
