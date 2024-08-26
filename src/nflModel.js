@@ -98,6 +98,18 @@ const differentConference = (away, home) => {
     return conferences[away.split(' ').join('')] !== conferences[home.split(' ').join('')]
 }
 
+const checkBlowouts = (away, home, lastWeekGames, spread) => {
+    ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away)
+    const awayMargin = ag.homeTeam === away ? ag.homeScore - ag.awayScore : ag.awayScore - ag.homeScore
+    hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home)
+    const homeMargin = hg.homeTeam === away ? hg.homeScore - hg.awayScore : hg.awayScore - hg.homeScore
+    if (awayMargin < -18) spread -= 2
+    if (awayMargin < -28) spread -= 2
+    if (homeMargin < -18) spread += 2
+    if (homeMargin < -28) spread += 2
+    return spread
+}
+
 const byeLastWeek = (home, away, spread) => {
     const byeLastWeek = bye[week-1]
     if (byeLastWeek) {
@@ -133,11 +145,31 @@ const handler = async () => {
                 const gameArray = game.name.split(' at ')
                 games.push({ 
                     away: gameArray[0],
-                    home: gameArray[1]
+                    home: gameArray[1],
+                    date: game.status.type.detail,
+                    id: game.id
                 })
             });
         });
-        // console.log(games)
+        const jsonLastWeek = await fetch(
+            `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2023&seasontype=2&week=18`
+        );
+        const lastWeekData = await jsonLastWeek.json();
+        const lastWeekGames = []
+        for (const game of lastWeekData.events) {
+            const gameArray = game.name.split(' at ')
+            const gameObj = {}
+            gameObj['homeTeam'] = gameArray[1]
+            gameObj['awayTeam'] = gameArray[0]
+            game.competitions[0].competitors.forEach(c => {
+                if (c["homeAway"] === 'home') {
+                    gameObj['homeScore'] = parseInt(c.score)
+                } else {
+                    gameObj['awayScore'] = parseInt(c.score)
+                }
+            })
+            lastWeekGames.push(gameObj)
+        }
         const client = await pool.connect();
         const result = await pool.query(`SELECT * FROM football_teams`);
         const teams = result.rows
@@ -152,6 +184,7 @@ const handler = async () => {
             const conference = differentConference(awayTeam, homeTeam)
             if (conference) spread += 1 
             spread = byeLastWeek(home, away, spread)
+            // spread = checkBlowouts(awayTeam, homeTeam, lastWeekGames, spread)
             end.push([home.team, home.ranking, away.team, away.ranking, division, conference, Math.round(spread * 100) / 100])
         })
         client.release();
