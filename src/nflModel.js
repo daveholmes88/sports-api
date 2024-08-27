@@ -129,8 +129,29 @@ const byeLastWeek = (home, away, spread) => {
     return spread
 }
 
+const checkNightGames = (date, spread) => {
+    let nightGame = false
+    if (date.includes('Thu')) {
+        spread += 2
+        nightGame = 'Thursday'
+    }
+    if (date.includes('Mon')) {
+        spread += 2
+        nightGame = 'Monday'
+    }
+    if (date.includes('Fri')) {
+        console.log('game on friday')
+        nightGame = 'Friday'
+    }
+    if (date.includes('Sun') && date.includes('8:20')) {
+        spread += 4
+        nightGame = 'Sunday Night'
+    }
+    return {night: nightGame, spread: spread}
+}
+
 const handler = async () => {
-    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Spread']];
+    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Spread']];
     const games = [];
     const end = []
     // for (let i = 1; i < 19; i++) {
@@ -161,6 +182,7 @@ const handler = async () => {
             const gameObj = {}
             gameObj['homeTeam'] = gameArray[1]
             gameObj['awayTeam'] = gameArray[0]
+            gameObj['date'] = game.date.split('T')[0]
             game.competitions[0].competitors.forEach(c => {
                 if (c["homeAway"] === 'home') {
                     gameObj['homeScore'] = parseInt(c.score)
@@ -185,7 +207,11 @@ const handler = async () => {
             if (conference) spread += 1 
             spread = byeLastWeek(home, away, spread)
             // spread = checkBlowouts(awayTeam, homeTeam, lastWeekGames, spread)
-            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, Math.round(spread * 100) / 100])
+            nightGame = checkNightGames(game.date, spread)
+                if (nightGame.night) {
+                    spread = nightGame.spread
+                }
+            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame.night, Math.round(spread * 100) / 100])
         })
         client.release();
         pool.end();
