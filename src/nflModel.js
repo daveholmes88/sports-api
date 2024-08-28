@@ -188,12 +188,29 @@ const overtimeLastWeek = [
     {away: '', home: ''}
 ]
 
+const playoffs = {
+    HoustonTexans: 'Baltimore Ravens',
+    GreenBayPackers: 'San Francisco 49ers',
+    TampaBayBuccaneers: 'Detroit Lions', 
+    BuffaloBills: 'Kansas City Chiefs', 
+    ClevelandBrowns: 'Houston Texans',
+    MiamiDolphins: 'Kansas City Chiefs',
+    DallasCowboys: 'Green Bay Packers',
+    LosAngelesRams: 'Detroit Lions',
+    PittsburghSteelers: 'Buffalo Bills',
+    PhiladelphiaEagles: 'Tampa Bay Buccaneers',
+    BaltimoreRavens: 'Kansas City Chiefs',
+    DetroitLions: 'San Francisco 49ers',
+    SanFrancisco49ers: 'Kansas City Chiefs', 
+}
+
+
 const sameDivision = (away, home) => {
-    return divisions[away.split(' ').join('')] === divisions[home.split(' ').join('')] 
+    return divisions[away.replaceAll(' ', '')] === divisions[home.replaceAll(' ', '')] 
 }
 
 const differentConference = (away, home) => {
-    return conferences[away.split(' ').join('')] !== conferences[home.split(' ').join('')]
+    return conferences[away.replaceAll(' ', '')] !== conferences[home.replaceAll(' ', '')]
 }
 
 const checkBlowouts = (away, home, lastWeekGames, spread) => {
@@ -251,13 +268,13 @@ const checkNightGames = (date, spread) => {
 const superBowlCheck = (away, home, spread) => {
     if (home === 'Kansas City Chiefs') spread += 2
     if (away === 'Kansas City Chiefs') spread -= 2
-    if (home === 'Philadelphia Eagles') spread -= 2
-    if (away === 'Philadelphia Eagles') spread += 2
+    if (home === 'San Francisco 49ers') spread -= 2
+    if (away === 'San Francisco 49ers') spread += 2
     return spread
 }
 
 const checkLongDistance = (away, home) => {
-    if (longDistance[away.split(' ').join('')].find(t => t === home)) return true
+    if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return true
     return false
 }
 
@@ -397,8 +414,19 @@ const awayCheck = (away, lastWeekGames) => {
     return check
 }
 
+const playoffCheck = (away, home, spread) => {
+    let rematch = false
+    if (playoffs[away.replaceAll(' ', '')] === home) {
+        rematch = true
+    }
+    if (playoffs[home.replaceAll(' ', '')] === away) {
+        rematch = true
+    }
+    return {rematch, spread}
+}
+
 const handler = async () => {
-    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Spread', 'Back to Back Away']];
+    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Spread', 'Back to Back Away', 'Playoff Rematch']];
     const games = [];
     const end = []
     // for (let i = 1; i < 19; i++) {
@@ -473,7 +501,9 @@ const handler = async () => {
             const overtime = overtimeCheck(awayTeam, homeTeam, spread)
             spread = overtime.spread
             spread = timeZoneCheck(game, spread)
-            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame.night, longDistance, shortDistance, thursday.game, monday.game, overtime.game, Math.round(spread * 100) / 100, backToBackAway])
+            const playoffRematch = playoffCheck(awayTeam, homeTeam)
+            spread = playoffRematch.spread
+            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame.night, longDistance, shortDistance, thursday.game, monday.game, overtime.game, Math.round(spread * 100) / 100, backToBackAway, playoffRematch.rematch])
         })
         client.release();
         pool.end();
