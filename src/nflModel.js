@@ -132,6 +132,62 @@ const longDistance = {
     CarolinaPanthers: ['Seattle Seahawks', 'San Francisco 49ers', 'Los Angeles Chargers', 'Los Angeles Rams', 'Las Vegas Raiders'],
 }
 
+const thursday = {
+    0: [],
+    1: ['Kansas City Chiefs', 'Baltimore Ravens', 'Green Bay Packers', 'Philadelphia Eagles'],
+    2: ['Buffalo Bills', 'Miami Dolphins'], 
+    3: ['New England Patriots', 'New York Jets'], 
+    4: ['Dallas Cowboys', 'New York Giants'], 
+    5: ['Tampa Bay Buccaneers', 'Atlanta Falcons'],
+    6: ['San Francisco 49ers', 'Seattle Seahawks'],
+    7: ['Denver Broncos', 'New Orleans Saints'], 
+    8: ['Minnesota Vikings', 'Los Angeles Rams'],
+    9: ['Houston Texans', 'New York Jets'], 
+    10: ['Cincinnati Bengals', 'Baltimore Ravens'], 
+    11: ['Washington Commanders', 'Philadelphia Eagles'],
+    12: ['Pittsburgh Steelers', 'Cleveland Browns'],
+    13: ['Chicago Bears', 'Detroit Lions', 'New York Giants', 'Dallas Cowboys', 'Miami Dolphins', 'Green Bay Packers', 'Las Vegas Raiders', 'Kansas City Chiefs'],
+    14: ['Green Bay Packers', 'Detroit Lions'], 
+    15: ['Los Angeles Rams', 'San Francisco 49ers'],
+    16: ['Cleveland Browns', 'Cincinnati Bengals'], 
+    17: ['Kansas City Chiefs', 'Pittsburgh Steelers', 'Baltimore Ravens', 'Houston Texans', 'Seattle Seahawks', 'Chicago Bears']
+}
+
+const friday = {
+    1: ['Green Bay Packers', 'Philadelphia Eagles'],
+    13: ['Las Vegas Raiders', 'Kansas City Chiefs']
+}
+
+const monday = {
+    0: [{away: '', home: ''}], 
+    1: [{away: 'New York Jets', home: 'San Francisco 49ers'}], 
+    2: [{away: 'Atlanta Falcons', home: 'Philadelphia Eagles'}], 
+    3: [{away: 'Jacksonville Jaguars', home: 'Buffalo Bills'}, {away: 'Washington Commanders', home: 'Cincinnati Bengals'}],
+    4: [{away: 'Tennessee Titans', home: 'Miami Dolphins'}, {away: 'Seattle Seahawks', home: 'Detroit Pistons'}],
+    5: [{away: 'New Orleans Saints', home: 'Kansas City Chiefs'}],
+    6: [{away: 'Buffalo Bills', home: 'New York Jets'}],
+    7: [{away: 'Baltimore Ravens', home:'Tampa Bay Buccaneers'}, {away: 'Los Angeles Chargers', home: 'Arizona Cardinals'}], 
+    8: [{away: 'New York Giants', home: 'Pittsburgh Steelers'}],
+    9: [{away: 'Tampa Bay Buccaneers', home: 'Kansas City Chiefs'}], 
+    10: [{away: 'Miami Dolphins', home: 'Los Angeles Rams'}],
+    11: [{away: 'Houston Texans', home: 'Dallas Cowboys'}],
+    12: [{away: 'Baltimore Ravens', home: 'Los Angeles Chargers'}],
+    13: [{away: 'Cleveland Browns', home: 'Denver Broncos'}],
+    14: [{away: 'Cincinnati Bengals', home: 'Dallas Cowboys'}],
+    15: [{away: 'Chicago Bears', home: 'Minnesota Vikings'}, {away: 'Atlanta Falcons', home: 'Las Vegas Raiders'}],
+    16: [{away: 'New Orleans Saints', home: 'Green Bay Packers'}],
+    17: [{away: 'Detroit Lions', home: 'San Francisco 49ers'}]
+}
+
+const pacific = ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks']
+const mountain = ['Arizona Cardinals', 'Denver Broncos']
+const central = ['Detroit Lions', 'Tennessee Titans', 'Kansas City Chiefs', 'Minnesota Vikings', 'Chicago Bears', 'Dallas Cowboys', 'Green Bay Packers', 'New Orleans Saints', 'Houston Texans']
+const eastern = ['Philadelphia Eagles', 'Miami Dolphins', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New York Jets', 'Baltimore Ravens', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders']
+
+const overtimeLastWeek = [
+    {away: '', home: ''}
+]
+
 const sameDivision = (away, home) => {
     return divisions[away.split(' ').join('')] === divisions[home.split(' ').join('')] 
 }
@@ -173,7 +229,7 @@ const byeLastWeek = (home, away, spread) => {
 
 const checkNightGames = (date, spread) => {
     let nightGame = false
-    if (date.includes('Thu')) {
+    if (date.includes('Thu') || date.includes('Wed')) {
         spread += 2
         nightGame = 'Thursday'
     }
@@ -236,8 +292,113 @@ const checkNoDistance = (away, home) => {
     }
 }
 
+const thursdayCheck = (awayTeam, homeTeam, spread) => {
+    let game = false
+    if (thursday[week-1].find(t => t === awayTeam)) {
+        spread -= 1
+        game = true
+    }
+    if (thursday[week-1].find(t => t === homeTeam)) {
+        spread += 1
+        game = true
+    }
+    return {spread, game}
+}
+
+const mondayCheck = (awayTeam, homeTeam, spread) => {
+    let game = false
+    monday[week-1].forEach(m => {
+        if (m.home === homeTeam) game = true 
+        if (m.home === awayTeam) {
+            spread -= 4
+            game = true
+        }
+        if (m.away === homeTeam) {
+            spread -= 6
+            game = true
+        }
+        if (m.away === awayTeam) {
+            spread += 8 
+            game = true
+        } 
+    })
+    return {game, spread}
+}
+
+const overtimeCheck = (awayTeam, homeTeam, spread) => {
+    game = false
+    overtimeLastWeek.forEach(g => {
+        if (awayTeam === g.home) {
+            game = true
+            spread += 4
+        }
+        if (awayTeam === g.away) {
+            game = true
+            spread += 2
+        }
+        if (homeTeam === g.home) {
+            game = true
+            spread -= 4
+        }
+        if (homeTeam === g.away) {
+            game = true
+            spread -= 2
+        }
+    })
+    return {game, spread}
+}
+
+const timeZoneCheck = (game, spread) => {
+    const { away, home, date } = game
+    const hour = parseInt(date.split(' at ')[1].split(':')[0])
+    if (hour === 1) {
+        if (pacific.find(team => team === away)) {
+            spread += 2
+        }
+        if (mountain.find(team => team === away)) {
+            spread += 1
+        }
+        if (pacific.find(team => team === home)) {
+            spread -= 2
+        }
+        if (mountain.find(team => team === home)) {
+            spread -= 1
+        }
+    }
+    if (hour > 6) {
+        if (eastern.find(team => team === away)) {
+            spread += 6
+        }
+        if (central.find(team => team === away)) {
+            spread += 3
+        }
+        if (mountain.find(team => team === away)) {
+            spread += 1
+        }
+        if (eastern.find(team => team === home)) {
+            spread -= 6
+        }
+        if (central.find(team => team === home)) {
+            spread -= 3
+        }
+        if (mountain.find(team => team === home)) {
+            spread -= 1
+        }
+    }
+    return spread
+} 
+
+const awayCheck = (away, lastWeekGames) => {
+    let check = false
+    const alsoLastWeek = lastWeekGames.find(game => game.awayTeam === away)
+    if (alsoLastWeek) {
+        check = true
+    }
+    return check
+}
+
 const handler = async () => {
-    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Spread']];
+    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Spread', 'Back to Back Away']];
     const games = [];
     const end = []
     // for (let i = 1; i < 19; i++) {
@@ -292,7 +453,9 @@ const handler = async () => {
             const conference = differentConference(awayTeam, homeTeam)
             if (conference) spread += 1 
             spread = byeLastWeek(home, away, spread)
+            let backToBackAway = false
             // spread = checkBlowouts(awayTeam, homeTeam, lastWeekGames, spread)
+            // backToBackAway = awayCheck(awayTeam, lastWeekGames)
             nightGame = checkNightGames(game.date, spread)
                 if (nightGame.night) {
                     spread = nightGame.spread
@@ -303,7 +466,14 @@ const handler = async () => {
             const shortDistance = checkShortDistance(awayTeam, homeTeam)
             if (shortDistance) spread -= 1
             if (checkNoDistance(awayTeam, homeTeam)) spread -= 1
-            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame.night, longDistance, shortDistance, Math.round(spread * 100) / 100])
+            const thursday = thursdayCheck(awayTeam, homeTeam, spread)
+            spread = thursday.spread
+            const monday = mondayCheck(awayTeam, homeTeam, spread)
+            spread = monday.spread
+            const overtime = overtimeCheck(awayTeam, homeTeam, spread)
+            spread = overtime.spread
+            spread = timeZoneCheck(game, spread)
+            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame.night, longDistance, shortDistance, thursday.game, monday.game, overtime.game, Math.round(spread * 100) / 100, backToBackAway])
         })
         client.release();
         pool.end();
@@ -311,7 +481,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile('../csv/nflModel.csv', csvFromGames, err => {
+    fs.writeFile(`../csv/nflModelWeek${week}.csv`, csvFromGames, err => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
