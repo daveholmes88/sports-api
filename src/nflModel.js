@@ -37,7 +37,7 @@ const divisions = {
     DenverBroncos: 'afcWest',
     LosAngelesChargers: 'afcWest',
     LasVegasRaiders: 'afcWest',
-    KansisCityChiefs: 'afcWest',
+    KansasCityChiefs: 'afcWest',
     PhiladelphiaEagles: 'nfcEast',
     NewYorkGiants: 'nfcEast',
     DallasCowboys: 'nfcEast',
@@ -72,7 +72,7 @@ const conferences = {
     DenverBroncos: 'afc',
     LosAngelesChargers: 'afc',
     LasVegasRaiders: 'afc',
-    KansisCityChiefs: 'afc',
+    KansasCityChiefs: 'afc',
     PhiladelphiaEagles: 'nfc',
     NewYorkGiants: 'nfc',
     DallasCowboys: 'nfc',
@@ -206,76 +206,80 @@ const playoffs = {
 
 
 const sameDivision = (away, home) => {
-    return divisions[away.replaceAll(' ', '')] === divisions[home.replaceAll(' ', '')] 
+    let impact = 0
+    if (divisions[away.replaceAll(' ', '')] === divisions[home.replaceAll(' ', '')]) impact = -1
+    return impact 
 }
 
 const differentConference = (away, home) => {
-    return conferences[away.replaceAll(' ', '')] !== conferences[home.replaceAll(' ', '')]
+    let impact = 0
+    if (conferences[away.replaceAll(' ', '')] !== conferences[home.replaceAll(' ', '')]) impact = 1
+    return impact
 }
 
-const checkBlowouts = (away, home, lastWeekGames, spread) => {
+const checkBlowouts = (away, home, lastWeekGames) => {
+    let impact = 0
     ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away)
     const awayMargin = ag.homeTeam === away ? ag.homeScore - ag.awayScore : ag.awayScore - ag.homeScore
     hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home)
     const homeMargin = hg.homeTeam === away ? hg.homeScore - hg.awayScore : hg.awayScore - hg.homeScore
-    if (awayMargin < -18) spread -= 2
-    if (awayMargin < -28) spread -= 2
-    if (homeMargin < -18) spread += 2
-    if (homeMargin < -28) spread += 2
-    return spread
+    if (awayMargin < -18) impact -= 2
+    if (awayMargin < -28) impact -= 2
+    if (homeMargin < -18) impact += 2
+    if (homeMargin < -28) impact += 2
+    return impact
 }
 
-const byeLastWeek = (home, away, spread) => {
+const byeLastWeek = (home, away) => {
+    let impact = 0
     const byeLastWeek = bye[week-1]
     if (byeLastWeek) {
         if (byeLastWeek.find(team => team === home.team)) {
             const { ranking } = home
-            if (ranking < -2) spread += 4
-            if (ranking >= -2 && ranking < 2) spread += 5
-            if (ranking >= 2) spread += 7
+            if (ranking < -2) impact += 4
+            if (ranking >= -2 && ranking < 2) impact += 5
+            if (ranking >= 2) impact += 7
         }
         if (byeLastWeek.find(team => team === away.team)) {
             const { ranking } = away
-            if (ranking < -2) spread -= 5
-            if (ranking >= -2 && ranking < 2) spread -= 6
-            if (ranking >= 2) spread -= 8
+            if (ranking < -2) impact -= 5
+            if (ranking >= -2 && ranking < 2) impact -= 6
+            if (ranking >= 2) impact -= 8
         }
     }
-    return spread
+    return impact
 }
 
-const checkNightGames = (date, spread) => {
-    let nightGame = false
+const checkNightGames = (date) => {
+    let impact = 0 
     if (date.includes('Thu') || date.includes('Wed')) {
-        spread += 2
-        nightGame = 'Thursday'
+        impact = 2
     }
     if (date.includes('Mon')) {
-        spread += 2
-        nightGame = 'Monday'
+        impact = 2
     }
     if (date.includes('Fri')) {
-        console.log('game on friday')
-        nightGame = 'Friday'
+        impact = 2
     }
     if (date.includes('Sun') && date.includes('8:20')) {
-        spread += 4
-        nightGame = 'Sunday Night'
+        impact = 4
     }
-    return {night: nightGame, spread: spread}
+    return impact
 }
 
-const superBowlCheck = (away, home, spread) => {
-    if (home === 'Kansas City Chiefs') spread += 2
-    if (away === 'Kansas City Chiefs') spread -= 2
-    if (home === 'San Francisco 49ers') spread -= 2
-    if (away === 'San Francisco 49ers') spread += 2
-    return spread
+const superBowlCheck = (away, home) => {
+    let impact = 0
+    if (home === 'Kansas City Chiefs') impact += 2
+    if (away === 'Kansas City Chiefs') impact -= 2
+    if (home === 'San Francisco 49ers') impact -= 2
+    if (away === 'San Francisco 49ers') impact += 2
+    return impact
 }
 
 const checkLongDistance = (away, home) => {
-    if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return true
-    return false
+    let impact = 0 
+    if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) impact = 1
+    return impact
 }
 
 const shortDistances = [
@@ -295,114 +299,108 @@ const noDistance = [
 ]
 
 const checkShortDistance = (away, home) => {
+    let impact = 0
     const awayIncluded = shortDistances.find(a => a.includes(away))
     if (awayIncluded){
-        if (awayIncluded.includes(home)) return true
+        if (awayIncluded.includes(home)) impact = -1
     }
-    return false
+    return impact
 }
 
 const checkNoDistance = (away, home) => {
+    impact = 0
     const awayIncluded = noDistance.find(a => a.includes(away))
     if (awayIncluded) {
-        if (awayIncluded.includes(home)) return true
+        if (awayIncluded.includes(home)) impact = -1
     }
+    return impact
 }
 
-const thursdayCheck = (awayTeam, homeTeam, spread) => {
-    let game = false
+const thursdayCheck = (awayTeam, homeTeam) => {
+    let impact = 0
     if (thursday[week-1].find(t => t === awayTeam)) {
-        spread -= 1
-        game = true
+        impact -= 1
     }
     if (thursday[week-1].find(t => t === homeTeam)) {
-        spread += 1
-        game = true
+        impact += 1
     }
-    return {spread, game}
+    return impact
 }
 
-const mondayCheck = (awayTeam, homeTeam, spread) => {
-    let game = false
+const mondayCheck = (awayTeam, homeTeam) => {
+    let impact = 0
     monday[week-1].forEach(m => {
-        if (m.home === homeTeam) game = true 
         if (m.home === awayTeam) {
-            spread -= 4
-            game = true
+            impact -= 4
         }
         if (m.away === homeTeam) {
-            spread -= 6
-            game = true
+            impact -= 6
         }
         if (m.away === awayTeam) {
-            spread += 8 
-            game = true
+            impact += 8 
         } 
     })
-    return {game, spread}
+    return impact
 }
 
-const overtimeCheck = (awayTeam, homeTeam, spread) => {
-    game = false
+const overtimeCheck = (awayTeam, homeTeam) => {
+    let impact = 0
     overtimeLastWeek.forEach(g => {
         if (awayTeam === g.home) {
-            game = true
-            spread += 4
+            impact += 4
         }
         if (awayTeam === g.away) {
-            game = true
-            spread += 2
+            impact += 2
         }
         if (homeTeam === g.home) {
-            game = true
-            spread -= 4
+            impact -= 4
         }
         if (homeTeam === g.away) {
-            game = true
-            spread -= 2
+            impact -= 2
         }
     })
-    return {game, spread}
+    return impact
 }
 
-const timeZoneCheck = (game, spread) => {
+const timeZoneCheck = (game) => {
     const { away, home, date } = game
+    let impact = 0
     const hour = parseInt(date.split(' at ')[1].split(':')[0])
     if (hour === 1) {
         if (pacific.find(team => team === away)) {
-            spread += 2
+            impact += 2
         }
         if (mountain.find(team => team === away)) {
-            spread += 1
+            impact += 1
         }
         if (pacific.find(team => team === home)) {
-            spread -= 2
+            impact -= 2
         }
         if (mountain.find(team => team === home)) {
-            spread -= 1
+            impact -= 1
         }
     }
     if (hour > 6) {
         if (eastern.find(team => team === away)) {
-            spread += 6
+            impact += 6
         }
         if (central.find(team => team === away)) {
-            spread += 3
+            impact += 3
         }
         if (mountain.find(team => team === away)) {
-            spread += 1
+            impact += 1
         }
         if (eastern.find(team => team === home)) {
-            spread -= 6
+            impact -= 6
         }
         if (central.find(team => team === home)) {
-            spread -= 3
+            impact -= 3
         }
         if (mountain.find(team => team === home)) {
-            spread -= 1
+            impact -= 1
         }
     }
-    return spread
+    return impact
 } 
 
 const awayCheck = (away, lastWeekGames) => {
@@ -414,19 +412,19 @@ const awayCheck = (away, lastWeekGames) => {
     return check
 }
 
-const playoffCheck = (away, home, spread) => {
-    let rematch = false
+const playoffCheck = (away, home) => {
+    let impact = 0
     if (playoffs[away.replaceAll(' ', '')] === home) {
-        rematch = true
+        impact -= 3
     }
     if (playoffs[home.replaceAll(' ', '')] === away) {
-        rematch = true
+        impact += 3
     }
-    return {rematch, spread}
+    return impact
 }
 
 const handler = async () => {
-    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Spread', 'Back to Back Away', 'Playoff Rematch']];
+    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Playoff Rematch', 'Timezone Factors', 'Super Bowl Impact', 'Bye Week', 'Spread', 'Back to Back Away',]];
     const games = [];
     const end = []
     // for (let i = 1; i < 19; i++) {
@@ -477,33 +475,37 @@ const handler = async () => {
             const home = teams.find(team => homeTeam === team.team)
             let spread = home.ranking - away.ranking
             const division = sameDivision(awayTeam, homeTeam)
-            if (division) spread -= 1
+            spread += division
             const conference = differentConference(awayTeam, homeTeam)
-            if (conference) spread += 1 
-            spread = byeLastWeek(home, away, spread)
+            spread += conference
+            const bye = byeLastWeek(home, away, spread)
+            spread += bye
             let backToBackAway = false
-            // spread = checkBlowouts(awayTeam, homeTeam, lastWeekGames, spread)
+            const blowouts = checkBlowouts(awayTeam, homeTeam, lastWeekGames)
+            spread += blowouts
             // backToBackAway = awayCheck(awayTeam, lastWeekGames)
-            nightGame = checkNightGames(game.date, spread)
-                if (nightGame.night) {
-                    spread = nightGame.spread
-                }
-            spread = superBowlCheck(awayTeam, homeTeam, spread)
+            // spread += backToBackAway
+            const nightGame = checkNightGames(game.date)
+            spread += nightGame 
+            const superBowl = superBowlCheck(awayTeam, homeTeam)
+            spread += superBowl
             const longDistance = checkLongDistance(awayTeam, homeTeam)
-            if (longDistance) spread += 1
+            spread += longDistance
             const shortDistance = checkShortDistance(awayTeam, homeTeam)
-            if (shortDistance) spread -= 1
-            if (checkNoDistance(awayTeam, homeTeam)) spread -= 1
-            const thursday = thursdayCheck(awayTeam, homeTeam, spread)
-            spread = thursday.spread
-            const monday = mondayCheck(awayTeam, homeTeam, spread)
-            spread = monday.spread
-            const overtime = overtimeCheck(awayTeam, homeTeam, spread)
-            spread = overtime.spread
-            spread = timeZoneCheck(game, spread)
+            spread += shortDistance
+            const noDistance = checkNoDistance(awayTeam, homeTeam)
+            spread += noDistance
+            const thursday = thursdayCheck(awayTeam, homeTeam)
+            spread += thursday
+            const monday = mondayCheck(awayTeam, homeTeam)
+            spread += monday
+            const overtime = overtimeCheck(awayTeam, homeTeam)
+            spread += overtime
+            const timeZone =  timeZoneCheck(game)
+            spread += timeZone
             const playoffRematch = playoffCheck(awayTeam, homeTeam)
-            spread = playoffRematch.spread
-            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame.night, longDistance, shortDistance, thursday.game, monday.game, overtime.game, Math.round(spread * 100) / 100, backToBackAway, playoffRematch.rematch])
+            spread += playoffRematch
+            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame, longDistance, shortDistance, thursday, monday, overtime, playoffRematch, timeZone, superBowl, bye, Math.round(spread * 100) / 100, backToBackAway])
         })
         client.release();
         pool.end();
