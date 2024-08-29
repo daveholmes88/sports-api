@@ -4,13 +4,13 @@ const pkg = require('pg');
 require('dotenv').config()
 
 const { Pool } = pkg
-const password = process.env.PASSWORD
-const week = 1
+const PASSWORD = process.env.PASSWORD
+const WEEK = 1
 
 const pool = new Pool({
   user: 'davidholmes',
   database: 'backendgambling_development',
-  password: password,
+  password: PASSWORD,
   port: 5432, // This is the default PostgreSQL port
 //   ssl: {
 //     rejectUnauthorized: false
@@ -265,7 +265,7 @@ const checkBlowouts = (away, home, lastWeekGames) => {
 
 const byeLastWeek = (home, away) => {
     let impact = 0
-    const byeLastWeek = bye[week-1]
+    const byeLastWeek = bye[WEEK-1]
     if (byeLastWeek) {
         if (byeLastWeek.find(team => team === home.team)) {
             const { ranking } = home
@@ -343,10 +343,10 @@ const checkNoDistance = (away, home) => {
 
 const thursdayCheck = (awayTeam, homeTeam) => {
     let impact = 0
-    if (thursday[week-1].find(t => t === awayTeam)) {
+    if (thursday[WEEK-1].find(t => t === awayTeam)) {
         impact -= 1
     }
-    if (thursday[week-1].find(t => t === homeTeam)) {
+    if (thursday[WEEK-1].find(t => t === homeTeam)) {
         impact += 1
     }
     return impact
@@ -354,7 +354,7 @@ const thursdayCheck = (awayTeam, homeTeam) => {
 
 const mondayCheck = (awayTeam, homeTeam) => {
     let impact = 0
-    monday[week-1].forEach(m => {
+    monday[WEEK-1].forEach(m => {
         if (m.home === awayTeam) {
             impact -= 4
         }
@@ -459,7 +459,7 @@ const handler = async () => {
     const end = []
     // for (let i = 1; i < 19; i++) {
         const jsonWeek = await fetch(
-            `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${week}`
+            `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${WEEK}`
         );
         const weekData = await jsonWeek.json();
         const schedule = weekData.content.schedule;
@@ -545,7 +545,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile(`../csv/nflModelWeek${week}.csv`, csvFromGames, err => {
+    fs.writeFile(`../csv/nflModelWeek${WEEK}.csv`, csvFromGames, err => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
