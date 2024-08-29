@@ -17,6 +17,41 @@ const pool = new Pool({
 //   }
 });
 
+const homeFieldAdvantage = {
+    ChicagoBears: 1.5,
+    GreenBayPackers: 2,
+    MinnesotaVikings: 1,
+    DetroitLions: 2,
+    PittsburghSteelers: 1.5,
+    BaltimoreRavens: 1,
+    ClevelandBrowns: 2, 
+    CincinnatiBengals: 2,
+    NewYorkJets: 1,
+    MiamiDolphins: 2,
+    NewEnglandPatriots: 1,
+    BuffaloBills: 1.5,
+    JacksonvilleJaguars: 1,
+    TennesseeTitans: 2,
+    HoustonTexans: 1.5,
+    IndianapolisColts: 2,
+    DenverBroncos: 2,
+    LosAngelesChargers: 1,
+    LasVegasRaiders: 2,
+    KansasCityChiefs: 1.5,
+    PhiladelphiaEagles: 2,
+    NewYorkGiants: 2,
+    DallasCowboys: 2,
+    WashingtonCommanders: 1,
+    TampaBayBuccaneers: 1,
+    SeattleSeahawks: 1.5,
+    SanFrancisco49ers: 1.5,
+    ArizonaCardinals: 1.5,
+    AtlantaFalcons: 1,
+    NewOrleansSaints: 1, 
+    CarolinaPanthers: 1,
+    LosAngelesRams: 1,
+}
+
 const divisions = {
     ChicagoBears: 'nfcNorth',
     GreenBayPackers: 'nfcNorth',
@@ -206,27 +241,25 @@ const playoffs = {
 
 
 const sameDivision = (away, home) => {
-    let impact = 0
-    if (divisions[away.replaceAll(' ', '')] === divisions[home.replaceAll(' ', '')]) impact = -1
-    return impact 
+    if (divisions[away.replaceAll(' ', '')] === divisions[home.replaceAll(' ', '')]) return -1
+    return 0
 }
 
 const differentConference = (away, home) => {
-    let impact = 0
-    if (conferences[away.replaceAll(' ', '')] !== conferences[home.replaceAll(' ', '')]) impact = 1
-    return impact
+    if (conferences[away.replaceAll(' ', '')] !== conferences[home.replaceAll(' ', '')]) return 1
+    return 0
 }
 
 const checkBlowouts = (away, home, lastWeekGames) => {
     let impact = 0
-    ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away)
-    const awayMargin = ag.homeTeam === away ? ag.homeScore - ag.awayScore : ag.awayScore - ag.homeScore
-    hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home)
-    const homeMargin = hg.homeTeam === away ? hg.homeScore - hg.awayScore : hg.awayScore - hg.homeScore
-    if (awayMargin < -18) impact -= 2
-    if (awayMargin < -28) impact -= 2
-    if (homeMargin < -18) impact += 2
-    if (homeMargin < -28) impact += 2
+    // ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away)
+    // const awayMargin = ag.homeTeam === away ? ag.homeScore - ag.awayScore : ag.awayScore - ag.homeScore
+    // hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home)
+    // const homeMargin = hg.homeTeam === away ? hg.homeScore - hg.awayScore : hg.awayScore - hg.homeScore
+    // if (awayMargin < -18) impact -= 2
+    // if (awayMargin < -28) impact -= 2
+    // if (homeMargin < -18) impact += 2
+    // if (homeMargin < -28) impact += 2
     return impact
 }
 
@@ -250,21 +283,16 @@ const byeLastWeek = (home, away) => {
     return impact
 }
 
-const checkNightGames = (date) => {
-    let impact = 0 
-    if (date.includes('Thu') || date.includes('Wed')) {
-        impact = 2
-    }
-    if (date.includes('Mon')) {
-        impact = 2
-    }
-    if (date.includes('Fri')) {
-        impact = 2
+const checkNightGames = (game) => {
+    const {date, neutral} = game
+    if (neutral) return 0
+    if (date.includes('Thu') || date.includes('Wed') || date.includes('Fri') || date.includes('Mon')) {
+        return 2
     }
     if (date.includes('Sun') && date.includes('8:20')) {
-        impact = 4
+        return 4
     }
-    return impact
+    return 0
 }
 
 const superBowlCheck = (away, home) => {
@@ -277,9 +305,8 @@ const superBowlCheck = (away, home) => {
 }
 
 const checkLongDistance = (away, home) => {
-    let impact = 0 
-    if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) impact = 1
-    return impact
+    if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1
+    return 0
 }
 
 const shortDistances = [
@@ -299,21 +326,19 @@ const noDistance = [
 ]
 
 const checkShortDistance = (away, home) => {
-    let impact = 0
     const awayIncluded = shortDistances.find(a => a.includes(away))
     if (awayIncluded){
-        if (awayIncluded.includes(home)) impact = -1
+        if (awayIncluded.includes(home)) return -1
     }
-    return impact
+    return 0
 }
 
 const checkNoDistance = (away, home) => {
-    impact = 0
     const awayIncluded = noDistance.find(a => a.includes(away))
     if (awayIncluded) {
-        if (awayIncluded.includes(home)) impact = -1
+        if (awayIncluded.includes(home)) return -1
     }
-    return impact
+    return 0
 }
 
 const thursdayCheck = (awayTeam, homeTeam) => {
@@ -413,18 +438,23 @@ const awayCheck = (away, lastWeekGames) => {
 }
 
 const playoffCheck = (away, home) => {
-    let impact = 0
     if (playoffs[away.replaceAll(' ', '')] === home) {
-        impact -= 3
+        return -3
     }
     if (playoffs[home.replaceAll(' ', '')] === away) {
-        impact += 3
+        return 3
     }
-    return impact
+    return 0
+}
+
+const checkHomeField = (game) => {
+    const { neutral, home } = game
+    if (neutral) return 0
+    return homeFieldAdvantage[home.replaceAll(' ', '')]
 }
 
 const handler = async () => {
-    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Playoff Rematch', 'Timezone Factors', 'Super Bowl Impact', 'Bye Week', 'Spread', 'Back to Back Away',]];
+    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Home Field Advantage', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Playoff Rematch', 'Timezone Factors', 'Super Bowl Impact', 'Bye Week', 'Last Week Blowout Factor', 'Spread', 'Back to Back Away',]];
     const games = [];
     const end = []
     // for (let i = 1; i < 19; i++) {
@@ -441,7 +471,8 @@ const handler = async () => {
                     away: gameArray[0],
                     home: gameArray[1],
                     date: game.status.type.detail,
-                    id: game.id
+                    id: game.id,
+                    neutral: game.competitions[0].neutralSite
                 })
             });
         });
@@ -474,18 +505,19 @@ const handler = async () => {
             const away = teams.find(team => awayTeam === team.team)
             const home = teams.find(team => homeTeam === team.team)
             let spread = home.ranking - away.ranking
+            const homeField = checkHomeField(game)
             const division = sameDivision(awayTeam, homeTeam)
             spread += division
             const conference = differentConference(awayTeam, homeTeam)
             spread += conference
-            const bye = byeLastWeek(home, away, spread)
+            const bye = byeLastWeek(home, away)
             spread += bye
             let backToBackAway = false
             const blowouts = checkBlowouts(awayTeam, homeTeam, lastWeekGames)
             spread += blowouts
             // backToBackAway = awayCheck(awayTeam, lastWeekGames)
             // spread += backToBackAway
-            const nightGame = checkNightGames(game.date)
+            const nightGame = checkNightGames(game)
             spread += nightGame 
             const superBowl = superBowlCheck(awayTeam, homeTeam)
             spread += superBowl
@@ -505,7 +537,7 @@ const handler = async () => {
             spread += timeZone
             const playoffRematch = playoffCheck(awayTeam, homeTeam)
             spread += playoffRematch
-            end.push([home.team, home.ranking, away.team, away.ranking, division, conference, nightGame, longDistance, shortDistance, thursday, monday, overtime, playoffRematch, timeZone, superBowl, bye, Math.round(spread * 100) / 100, backToBackAway])
+            end.push([home.team, home.ranking, away.team, away.ranking, homeField, division, conference, nightGame, longDistance, shortDistance, thursday, monday, overtime, playoffRematch, timeZone, superBowl, bye, blowouts, Math.round(spread * 100) / 100, backToBackAway])
         })
         client.release();
         pool.end();
