@@ -895,7 +895,6 @@ const handler = async () => {
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM football_teams`);
     const teams = result.rows;
-    console.log(teams);
     games.forEach(game => {
         const awayTeam = game.away;
         const homeTeam = game.home;
