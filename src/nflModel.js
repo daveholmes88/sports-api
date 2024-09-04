@@ -252,14 +252,15 @@ const differentConference = (away, home) => {
 
 const checkBlowouts = (away, home, lastWeekGames) => {
     let impact = 0
-    // ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away)
-    // const awayMargin = ag.homeTeam === away ? ag.homeScore - ag.awayScore : ag.awayScore - ag.homeScore
-    // hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home)
-    // const homeMargin = hg.homeTeam === away ? hg.homeScore - hg.awayScore : hg.awayScore - hg.homeScore
-    // if (awayMargin < -18) impact -= 2
-    // if (awayMargin < -28) impact -= 2
-    // if (homeMargin < -18) impact += 2
-    // if (homeMargin < -28) impact += 2
+    if (WEEK === 1) return 0
+    ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away)
+    const awayMargin = ag.homeTeam === away ? ag.homeScore - ag.awayScore : ag.awayScore - ag.homeScore
+    hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home)
+    const homeMargin = hg.homeTeam === away ? hg.homeScore - hg.awayScore : hg.awayScore - hg.homeScore
+    if (awayMargin < -18) impact -= 2
+    if (awayMargin < -28) impact -= 2
+    if (homeMargin < -18) impact += 2
+    if (homeMargin < -28) impact += 2
     return impact
 }
 
@@ -296,11 +297,20 @@ const checkNightGames = (game) => {
 }
 
 const superBowlCheck = (away, home) => {
+    if (WEEK > 4) return 0
     let impact = 0
-    if (home === 'Kansas City Chiefs') impact += 2
-    if (away === 'Kansas City Chiefs') impact -= 2
-    if (home === 'San Francisco 49ers') impact -= 2
-    if (away === 'San Francisco 49ers') impact += 2
+    if (home === 'Kansas City Chiefs') {
+        impact += WEEK === 1 ? 4 : 2
+    }
+    if (away === 'Kansas City Chiefs') {
+        impact -= WEEK === 1 ? 4 : 2
+    }
+    if (home === 'San Francisco 49ers') {
+        impact -= WEEK === 1 ? 4 : 2
+    }
+    if (away === 'San Francisco 49ers') {
+        impact += WEEK === 1 ? 4 : 2
+    }
     return impact
 }
 
@@ -344,10 +354,10 @@ const checkNoDistance = (away, home) => {
 const thursdayCheck = (awayTeam, homeTeam) => {
     let impact = 0
     if (thursday[WEEK-1].find(t => t === awayTeam)) {
-        impact -= 1
+        impact -= 2
     }
     if (thursday[WEEK-1].find(t => t === homeTeam)) {
-        impact += 1
+        impact += 2
     }
     return impact
 }
@@ -372,16 +382,16 @@ const overtimeCheck = (awayTeam, homeTeam) => {
     let impact = 0
     overtimeLastWeek.forEach(g => {
         if (awayTeam === g.home) {
-            impact += 4
-        }
-        if (awayTeam === g.away) {
             impact += 2
         }
+        if (awayTeam === g.away) {
+            impact += 1
+        }
         if (homeTeam === g.home) {
-            impact -= 4
+            impact -= 2
         }
         if (homeTeam === g.away) {
-            impact -= 2
+            impact -= 1
         }
     })
     return impact
@@ -430,6 +440,7 @@ const timeZoneCheck = (game) => {
 
 const awayCheck = (away, lastWeekGames) => {
     let check = false
+    if (WEEK === 1) return check
     const alsoLastWeek = lastWeekGames.find(game => game.awayTeam === away)
     if (alsoLastWeek) {
         check = true
@@ -439,10 +450,10 @@ const awayCheck = (away, lastWeekGames) => {
 
 const playoffCheck = (away, home) => {
     if (playoffs[away.replaceAll(' ', '')] === home) {
-        return -3
+        return -6
     }
     if (playoffs[home.replaceAll(' ', '')] === away) {
-        return 3
+        return 6
     }
     return 0
 }
@@ -453,59 +464,67 @@ const checkHomeField = (game) => {
     return homeFieldAdvantage[home.replaceAll(' ', '')]
 }
 
+const rounding = (num) => Math.round(num * 100) / 100
+
 const handler = async () => {
-    const header = [['Home Team', 'Rank', 'Away Team', 'Rank', 'Home Field Advantage', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Playoff Rematch', 'Timezone Factors', 'Super Bowl Impact', 'Bye Week', 'Last Week Blowout Factor', 'Spread', 'Back to Back Away',]];
+    // const tables = ['adjusted_dvoa', 'football_teams']
+    let header
     const games = [];
     const end = []
-    // for (let i = 1; i < 19; i++) {
-        const jsonWeek = await fetch(
-            `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${WEEK}`
-        );
-        const weekData = await jsonWeek.json();
-        const schedule = weekData.content.schedule;
-        const dates = Object.keys(schedule);
-        dates.forEach(date => {
-            schedule[date].games.forEach(game => {
-                const gameArray = game.name.split(' at ')
-                games.push({ 
-                    away: gameArray[0],
-                    home: gameArray[1],
-                    date: game.status.type.detail,
-                    id: game.id,
-                    neutral: game.competitions[0].neutralSite
-                })
-            });
-        });
-        const jsonLastWeek = await fetch(
-            `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2023&seasontype=2&week=17`
-        );
-        const lastWeekData = await jsonLastWeek.json();
-        const lastWeekGames = []
-        for (const game of lastWeekData.events) {
+    const envFactors = []
+    const jsonWeek = await fetch(
+        `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${WEEK}`
+    );
+    const weekData = await jsonWeek.json();
+    const schedule = weekData.content.schedule;
+    const dates = Object.keys(schedule);
+    dates.forEach(date => {
+        schedule[date].games.forEach(game => {
             const gameArray = game.name.split(' at ')
-            const gameObj = {}
-            gameObj['homeTeam'] = gameArray[1]
-            gameObj['awayTeam'] = gameArray[0]
-            gameObj['date'] = game.date.split('T')[0]
-            game.competitions[0].competitors.forEach(c => {
-                if (c["homeAway"] === 'home') {
-                    gameObj['homeScore'] = parseInt(c.score)
-                } else {
-                    gameObj['awayScore'] = parseInt(c.score)
-                }
+            games.push({ 
+                away: gameArray[0],
+                home: gameArray[1],
+                date: game.status.type.detail,
+                id: game.id,
+                neutral: game.competitions[0].neutralSite,
+                espnOdds: game.competitions[0].odds[0].details,
+                abbreviation: game.competitions[0].odds[0].homeTeamOdds.team.abbreviation
             })
-            lastWeekGames.push(gameObj)
-        }
-        const client = await pool.connect();
+        });
+    });
+    const jsonLastWeek = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=1`
+    );
+    const lastWeekData = await jsonLastWeek.json();
+    const lastWeekGames = []
+    for (const game of lastWeekData.events) {
+        const gameArray = game.name.split(' at ')
+        const gameObj = {}
+        gameObj['homeTeam'] = gameArray[1]
+        gameObj['awayTeam'] = gameArray[0]
+        gameObj['date'] = game.date.split('T')[0]
+        game.competitions[0].competitors.forEach(c => {
+            if (c["homeAway"] === 'home') {
+                gameObj['homeScore'] = parseInt(c.score)
+            } else {
+                gameObj['awayScore'] = parseInt(c.score)
+            }
+        })
+        lastWeekGames.push(gameObj)
+    }
+    const client = await pool.connect();
         const result = await pool.query(`SELECT * FROM football_teams`);
         const teams = result.rows
+        console.log(teams)
         games.forEach((game) => {
             const awayTeam = game.away
             const homeTeam = game.home
             const away = teams.find(team => awayTeam === team.team)
             const home = teams.find(team => homeTeam === team.team)
-            let spread = home.ranking - away.ranking
+            let espn = home.espn_api - away.espn_api
+            let spread = 0
             const homeField = checkHomeField(game)
+            spread += homeField
             const division = sameDivision(awayTeam, homeTeam)
             spread += division
             const conference = differentConference(awayTeam, homeTeam)
@@ -515,8 +534,8 @@ const handler = async () => {
             let backToBackAway = false
             const blowouts = checkBlowouts(awayTeam, homeTeam, lastWeekGames)
             spread += blowouts
-            // backToBackAway = awayCheck(awayTeam, lastWeekGames)
-            // spread += backToBackAway
+            backToBackAway = awayCheck(awayTeam, lastWeekGames)
+            spread += backToBackAway
             const nightGame = checkNightGames(game)
             spread += nightGame 
             const superBowl = superBowlCheck(awayTeam, homeTeam)
@@ -537,10 +556,16 @@ const handler = async () => {
             spread += timeZone
             const playoffRematch = playoffCheck(awayTeam, homeTeam)
             spread += playoffRematch
-            end.push([home.team, home.ranking, away.team, away.ranking, homeField, division, conference, nightGame, longDistance, shortDistance, thursday, monday, overtime, playoffRematch, timeZone, superBowl, bye, blowouts, Math.round(spread * 100) / 100, backToBackAway])
+            spread = spread / 5
+            let homeSpread  = rounding(spread+espn) * -1
+            const homeEspn = homeSpread > 0 ? `+${homeSpread}` : homeSpread
+            const dvoa = home.adjusted_dvoa - away.adjusted_dvoa
+            homeSpread = rounding(spread+dvoa) * -1
+            const homeDvoa = homeSpread > 0 ? `+${homeSpread}` : homeSpread
+            envFactors.push([home.team, away.team, homeField, division, conference, nightGame, longDistance, shortDistance, thursday, monday, overtime, playoffRematch, timeZone, superBowl, bye, blowouts, rounding(spread), backToBackAway])
+            end.push([home.team, home.espn_api, home.adjusted_dvoa, away.team, away.espn_api, away.adjusted_dvoa, rounding(spread), `${homeTeam} ${homeEspn}`, `${homeTeam} ${homeDvoa}`, game.espnOdds])
         })
-        client.release();
-        pool.end();
+    header = ['Home Team', 'Home ESPN', 'Home DVOA', 'Away Team', 'Away ESPN', 'Away DVOA', 'Environmental Factors', 'ESPN FPI Spread', 'Adjusted DVOA Spread', 'ESPN Spread'];
     const csvFromGames = convertArrayToCSV(end, {
         header,
         separator: ',',
@@ -549,6 +574,17 @@ const handler = async () => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
+    header = ['Home Team', 'Away Team', 'Home Field Advantage', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Playoff Rematch', 'Timezone Factors', 'Super Bowl Impact', 'Bye Week', 'Last Week Blowout Factor', 'Environmental Factors', 'Back to Back Away',];
+    const csvEnvFactors = convertArrayToCSV(envFactors, {
+        header,
+        separator: ','
+    });
+    fs.writeFile(`../csv/envFactorsWeek${WEEK}.csv`, csvEnvFactors, err => {
+        if (err) console.log(err);
+        else console.log('csv file written');
+    });
+    client.release();
+    pool.end();
 };
 
 handler();
