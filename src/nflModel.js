@@ -1,20 +1,20 @@
 const fs = require('fs');
 const { convertArrayToCSV } = require('convert-array-to-csv');
 const pkg = require('pg');
-require('dotenv').config()
+require('dotenv').config();
 
-const { Pool } = pkg
-const PASSWORD = process.env.PASSWORD
-const WEEK = 1
+const { Pool } = pkg;
+const PASSWORD = process.env.PASSWORD;
+const WEEK = 1;
 
 const pool = new Pool({
-  user: 'davidholmes',
-  database: 'backendgambling_development',
-  password: PASSWORD,
-  port: 5432, // This is the default PostgreSQL port
-//   ssl: {
-//     rejectUnauthorized: false
-//   }
+    user: 'davidholmes',
+    database: 'backendgambling_development',
+    password: PASSWORD,
+    port: 5432, // This is the default PostgreSQL port
+    //   ssl: {
+    //     rejectUnauthorized: false
+    //   }
 });
 
 const homeFieldAdvantage = {
@@ -24,7 +24,7 @@ const homeFieldAdvantage = {
     DetroitLions: 1.5,
     PittsburghSteelers: 1.5,
     BaltimoreRavens: 1,
-    ClevelandBrowns: 2, 
+    ClevelandBrowns: 2,
     CincinnatiBengals: 1.5,
     NewYorkJets: 1.5,
     MiamiDolphins: 2,
@@ -47,10 +47,10 @@ const homeFieldAdvantage = {
     SanFrancisco49ers: 1.5,
     ArizonaCardinals: 1,
     AtlantaFalcons: 1,
-    NewOrleansSaints: 1, 
+    NewOrleansSaints: 1,
     CarolinaPanthers: 1.5,
     LosAngelesRams: 1,
-}
+};
 
 const divisions = {
     ChicagoBears: 'nfcNorth',
@@ -59,7 +59,7 @@ const divisions = {
     DetroitLions: 'nfcNorth',
     PittsburghSteelers: 'afcNorth',
     BaltimoreRavens: 'afcNorth',
-    ClevelandBrowns: 'afcNorth', 
+    ClevelandBrowns: 'afcNorth',
     CincinnatiBengals: 'afcNorth',
     NewYorkJets: 'afcEast',
     MiamiDolphins: 'afcEast',
@@ -82,10 +82,10 @@ const divisions = {
     SanFrancisco49ers: 'nfcWest',
     ArizonaCardinals: 'nfcWest',
     AtlantaFalcons: 'nfcSouth',
-    NewOrleansSaints: 'nfcSouth', 
+    NewOrleansSaints: 'nfcSouth',
     CarolinaPanthers: 'nfcSouth',
     LosAngelesRams: 'nfcWest',
-}
+};
 
 const conferences = {
     ChicagoBears: 'nfc',
@@ -94,7 +94,7 @@ const conferences = {
     DetroitLions: 'nfc',
     PittsburghSteelers: 'afc',
     BaltimoreRavens: 'afc',
-    ClevelandBrowns: 'afc', 
+    ClevelandBrowns: 'afc',
     CincinnatiBengals: 'afc',
     NewYorkJets: 'afc',
     MiamiDolphins: 'afc',
@@ -117,117 +117,470 @@ const conferences = {
     SanFrancisco49ers: 'nfc',
     ArizonaCardinals: 'nfc',
     AtlantaFalcons: 'nfc',
-    NewOrleansSaints: 'nfc', 
+    NewOrleansSaints: 'nfc',
     CarolinaPanthers: 'nfc',
     LosAngelesRams: 'nfc',
-}
+};
 
 const bye = {
-    5: ['Detroit Lions', 'Los Angeles Chargers', 'Philadelphia Eagles', 'Tennessee Titans'],
-    6: ['Kansas City Chiefs', 'Los Angeles Rams', 'Miami Dolphins', 'Minnesota Vikings'],
+    5: [
+        'Detroit Lions',
+        'Los Angeles Chargers',
+        'Philadelphia Eagles',
+        'Tennessee Titans',
+    ],
+    6: [
+        'Kansas City Chiefs',
+        'Los Angeles Rams',
+        'Miami Dolphins',
+        'Minnesota Vikings',
+    ],
     7: ['Chicago Bears', 'Dallas Cowboys'],
     9: ['Pittsburgh Steelers', 'San Francisco 49ers'],
-    10: ['Cleveland Browns', 'Green Bay Packers', 'Las Vegas Raiders', 'Seattle Seahawks'],
-    11: ['Arizona Cardinals', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers'], 
-    12: ['Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New Orleans Saints', 'New York Jets'],
-    14: ['Baltimore Ravens', 'Denver Broncos', 'Houston Texans', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders']
-}
+    10: [
+        'Cleveland Browns',
+        'Green Bay Packers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+    ],
+    11: [
+        'Arizona Cardinals',
+        'Carolina Panthers',
+        'New York Giants',
+        'Tampa Bay Buccaneers',
+    ],
+    12: [
+        'Atlanta Falcons',
+        'Buffalo Bills',
+        'Cincinnati Bengals',
+        'Jacksonville Jaguars',
+        'New Orleans Saints',
+        'New York Jets',
+    ],
+    14: [
+        'Baltimore Ravens',
+        'Denver Broncos',
+        'Houston Texans',
+        'Indianapolis Colts',
+        'New England Patriots',
+        'Washington Commanders',
+    ],
+};
 const longDistance = {
-    SeattleSeahawks: ['Detroit Lions', 'Philadelphia Eagles', 'Tennessee Titans', 'Miami Dolphins', 'Chicago Bears', 'Dallas Cowboys', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New Orleans Saints', 'New York Jets', 'Baltimore Ravens', 'Houston Texans', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders'],
-    SanFrancisco49ers: ['Detroit Lions', 'Philadelphia Eagles', 'Tennessee Titans', 'Miami Dolphins', 'Chicago Bears', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New Orleans Saints', 'New York Jets', 'Baltimore Ravens', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders', 'Green Bay Packers'],
-    LosAngelesChargers: ['Detroit Lions', 'Philadelphia Eagles', 'Tennessee Titans', 'Miami Dolphins', 'Chicago Bears', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New Orleans Saints', 'New York Jets', 'Baltimore Ravens', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders', 'Green Bay Packers'],
-    LosAngelesRams: ['Detroit Lions', 'Philadelphia Eagles', 'Tennessee Titans', 'Miami Dolphins', 'Chicago Bears', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New Orleans Saints', 'New York Jets', 'Baltimore Ravens', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders', 'Green Bay Packers'],
-    ArizonaCardinals: ['Philadelphia Eagles', 'Miami Dolphins', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Buffalo Bills', 'Jacksonville Jaguars', 'New York Jets', 'Baltimore Ravens', 'New England Patriots', 'Washington Commanders'],
-    LasVegasRaiders: ['Detroit Lions', 'Philadelphia Eagles', 'Miami Dolphins', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Buffalo Bills', 'Jacksonville Jaguars', 'New York Jets', 'Baltimore Ravens', 'New England Patriots', 'Washington Commanders'],
+    SeattleSeahawks: [
+        'Detroit Lions',
+        'Philadelphia Eagles',
+        'Tennessee Titans',
+        'Miami Dolphins',
+        'Chicago Bears',
+        'Dallas Cowboys',
+        'Pittsburgh Steelers',
+        'Cleveland Browns',
+        'Carolina Panthers',
+        'New York Giants',
+        'Tampa Bay Buccaneers',
+        'Atlanta Falcons',
+        'Buffalo Bills',
+        'Cincinnati Bengals',
+        'Jacksonville Jaguars',
+        'New Orleans Saints',
+        'New York Jets',
+        'Baltimore Ravens',
+        'Houston Texans',
+        'Indianapolis Colts',
+        'New England Patriots',
+        'Washington Commanders',
+    ],
+    SanFrancisco49ers: [
+        'Detroit Lions',
+        'Philadelphia Eagles',
+        'Tennessee Titans',
+        'Miami Dolphins',
+        'Chicago Bears',
+        'Pittsburgh Steelers',
+        'Cleveland Browns',
+        'Carolina Panthers',
+        'New York Giants',
+        'Tampa Bay Buccaneers',
+        'Atlanta Falcons',
+        'Buffalo Bills',
+        'Cincinnati Bengals',
+        'Jacksonville Jaguars',
+        'New Orleans Saints',
+        'New York Jets',
+        'Baltimore Ravens',
+        'Indianapolis Colts',
+        'New England Patriots',
+        'Washington Commanders',
+        'Green Bay Packers',
+    ],
+    LosAngelesChargers: [
+        'Detroit Lions',
+        'Philadelphia Eagles',
+        'Tennessee Titans',
+        'Miami Dolphins',
+        'Chicago Bears',
+        'Pittsburgh Steelers',
+        'Cleveland Browns',
+        'Carolina Panthers',
+        'New York Giants',
+        'Tampa Bay Buccaneers',
+        'Atlanta Falcons',
+        'Buffalo Bills',
+        'Cincinnati Bengals',
+        'Jacksonville Jaguars',
+        'New Orleans Saints',
+        'New York Jets',
+        'Baltimore Ravens',
+        'Indianapolis Colts',
+        'New England Patriots',
+        'Washington Commanders',
+        'Green Bay Packers',
+    ],
+    LosAngelesRams: [
+        'Detroit Lions',
+        'Philadelphia Eagles',
+        'Tennessee Titans',
+        'Miami Dolphins',
+        'Chicago Bears',
+        'Pittsburgh Steelers',
+        'Cleveland Browns',
+        'Carolina Panthers',
+        'New York Giants',
+        'Tampa Bay Buccaneers',
+        'Atlanta Falcons',
+        'Buffalo Bills',
+        'Cincinnati Bengals',
+        'Jacksonville Jaguars',
+        'New Orleans Saints',
+        'New York Jets',
+        'Baltimore Ravens',
+        'Indianapolis Colts',
+        'New England Patriots',
+        'Washington Commanders',
+        'Green Bay Packers',
+    ],
+    ArizonaCardinals: [
+        'Philadelphia Eagles',
+        'Miami Dolphins',
+        'Pittsburgh Steelers',
+        'Cleveland Browns',
+        'Carolina Panthers',
+        'New York Giants',
+        'Tampa Bay Buccaneers',
+        'Buffalo Bills',
+        'Jacksonville Jaguars',
+        'New York Jets',
+        'Baltimore Ravens',
+        'New England Patriots',
+        'Washington Commanders',
+    ],
+    LasVegasRaiders: [
+        'Detroit Lions',
+        'Philadelphia Eagles',
+        'Miami Dolphins',
+        'Pittsburgh Steelers',
+        'Cleveland Browns',
+        'Carolina Panthers',
+        'New York Giants',
+        'Tampa Bay Buccaneers',
+        'Buffalo Bills',
+        'Jacksonville Jaguars',
+        'New York Jets',
+        'Baltimore Ravens',
+        'New England Patriots',
+        'Washington Commanders',
+    ],
     DenverBroncos: ['Miami Dolphins'],
     DallasCowboys: ['Seattle Seahawks'],
     HoustonTexans: ['Seattle Seahawks'],
-    DetroitLions: ['Seattle Seahawks', 'San Francisco 49ers', 'Los Angeles Chargers', 'Los Angeles Rams', 'Las Vegas Raiders'],
-    ChicagoBears: ['Seattle Seahawks', 'San Francisco 49ers', 'Los Angeles Chargers', 'Los Angeles Rams'],
-    GreenBayPackers: ['Seattle Seahawks', 'San Francisco 49ers', 'Los Angeles Chargers', 'Los Angeles Rams', 'Las Vegas Raiders'],
-    MinnesotaVikings: [], 
-    PittsburghSteelers: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    BaltimoreRavens: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    ClevelandBrowns: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    CincinnatiBengals: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    NewYorkJets: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    MiamiDolphins: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals', 'Denver Broncos'],
-    NewEnglandPatriots: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    BuffaloBills: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    JacksonvilleJaguars: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    TennesseeTitans: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Seattle Seahawks'],
-    IndianapolisColts: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Seattle Seahawks'],
+    DetroitLions: [
+        'Seattle Seahawks',
+        'San Francisco 49ers',
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'Las Vegas Raiders',
+    ],
+    ChicagoBears: [
+        'Seattle Seahawks',
+        'San Francisco 49ers',
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+    ],
+    GreenBayPackers: [
+        'Seattle Seahawks',
+        'San Francisco 49ers',
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'Las Vegas Raiders',
+    ],
+    MinnesotaVikings: [],
+    PittsburghSteelers: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    BaltimoreRavens: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    ClevelandBrowns: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    CincinnatiBengals: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    NewYorkJets: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    MiamiDolphins: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+        'Denver Broncos',
+    ],
+    NewEnglandPatriots: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    BuffaloBills: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    JacksonvilleJaguars: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    TennesseeTitans: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Seattle Seahawks',
+    ],
+    IndianapolisColts: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Seattle Seahawks',
+    ],
     KansisCityChiefs: [],
-    PhiladelphiaEagles: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    NewYorkGiants: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    WashingtonCommanders: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    TampaBayBuccaneers: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    AtlantaFalcons: ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks', 'Arizona Cardinals'],
-    NewOrleansSaints: ['Seattle Seahawks', 'San Francisco 49ers', 'Los Angeles Chargers', 'Los Angeles Rams'],
-    CarolinaPanthers: ['Seattle Seahawks', 'San Francisco 49ers', 'Los Angeles Chargers', 'Los Angeles Rams', 'Las Vegas Raiders'],
-}
+    PhiladelphiaEagles: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    NewYorkGiants: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    WashingtonCommanders: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    TampaBayBuccaneers: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    AtlantaFalcons: [
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'San Francisco 49ers',
+        'Las Vegas Raiders',
+        'Seattle Seahawks',
+        'Arizona Cardinals',
+    ],
+    NewOrleansSaints: [
+        'Seattle Seahawks',
+        'San Francisco 49ers',
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+    ],
+    CarolinaPanthers: [
+        'Seattle Seahawks',
+        'San Francisco 49ers',
+        'Los Angeles Chargers',
+        'Los Angeles Rams',
+        'Las Vegas Raiders',
+    ],
+};
 
 const thursday = {
     0: [],
-    1: ['Kansas City Chiefs', 'Baltimore Ravens', 'Green Bay Packers', 'Philadelphia Eagles'],
-    2: ['Buffalo Bills', 'Miami Dolphins'], 
-    3: ['New England Patriots', 'New York Jets'], 
-    4: ['Dallas Cowboys', 'New York Giants'], 
+    1: [
+        'Kansas City Chiefs',
+        'Baltimore Ravens',
+        'Green Bay Packers',
+        'Philadelphia Eagles',
+    ],
+    2: ['Buffalo Bills', 'Miami Dolphins'],
+    3: ['New England Patriots', 'New York Jets'],
+    4: ['Dallas Cowboys', 'New York Giants'],
     5: ['Tampa Bay Buccaneers', 'Atlanta Falcons'],
     6: ['San Francisco 49ers', 'Seattle Seahawks'],
-    7: ['Denver Broncos', 'New Orleans Saints'], 
+    7: ['Denver Broncos', 'New Orleans Saints'],
     8: ['Minnesota Vikings', 'Los Angeles Rams'],
-    9: ['Houston Texans', 'New York Jets'], 
-    10: ['Cincinnati Bengals', 'Baltimore Ravens'], 
+    9: ['Houston Texans', 'New York Jets'],
+    10: ['Cincinnati Bengals', 'Baltimore Ravens'],
     11: ['Washington Commanders', 'Philadelphia Eagles'],
     12: ['Pittsburgh Steelers', 'Cleveland Browns'],
-    13: ['Chicago Bears', 'Detroit Lions', 'New York Giants', 'Dallas Cowboys', 'Miami Dolphins', 'Green Bay Packers', 'Las Vegas Raiders', 'Kansas City Chiefs'],
-    14: ['Green Bay Packers', 'Detroit Lions'], 
+    13: [
+        'Chicago Bears',
+        'Detroit Lions',
+        'New York Giants',
+        'Dallas Cowboys',
+        'Miami Dolphins',
+        'Green Bay Packers',
+        'Las Vegas Raiders',
+        'Kansas City Chiefs',
+    ],
+    14: ['Green Bay Packers', 'Detroit Lions'],
     15: ['Los Angeles Rams', 'San Francisco 49ers'],
-    16: ['Cleveland Browns', 'Cincinnati Bengals'], 
-    17: ['Kansas City Chiefs', 'Pittsburgh Steelers', 'Baltimore Ravens', 'Houston Texans', 'Seattle Seahawks', 'Chicago Bears']
-}
+    16: ['Cleveland Browns', 'Cincinnati Bengals'],
+    17: [
+        'Kansas City Chiefs',
+        'Pittsburgh Steelers',
+        'Baltimore Ravens',
+        'Houston Texans',
+        'Seattle Seahawks',
+        'Chicago Bears',
+    ],
+};
 
 const friday = {
     1: ['Green Bay Packers', 'Philadelphia Eagles'],
-    13: ['Las Vegas Raiders', 'Kansas City Chiefs']
-}
+    13: ['Las Vegas Raiders', 'Kansas City Chiefs'],
+};
 
 const monday = {
-    0: [{away: '', home: ''}], 
-    1: [{away: 'New York Jets', home: 'San Francisco 49ers'}], 
-    2: [{away: 'Atlanta Falcons', home: 'Philadelphia Eagles'}], 
-    3: [{away: 'Jacksonville Jaguars', home: 'Buffalo Bills'}, {away: 'Washington Commanders', home: 'Cincinnati Bengals'}],
-    4: [{away: 'Tennessee Titans', home: 'Miami Dolphins'}, {away: 'Seattle Seahawks', home: 'Detroit Pistons'}],
-    5: [{away: 'New Orleans Saints', home: 'Kansas City Chiefs'}],
-    6: [{away: 'Buffalo Bills', home: 'New York Jets'}],
-    7: [{away: 'Baltimore Ravens', home:'Tampa Bay Buccaneers'}, {away: 'Los Angeles Chargers', home: 'Arizona Cardinals'}], 
-    8: [{away: 'New York Giants', home: 'Pittsburgh Steelers'}],
-    9: [{away: 'Tampa Bay Buccaneers', home: 'Kansas City Chiefs'}], 
-    10: [{away: 'Miami Dolphins', home: 'Los Angeles Rams'}],
-    11: [{away: 'Houston Texans', home: 'Dallas Cowboys'}],
-    12: [{away: 'Baltimore Ravens', home: 'Los Angeles Chargers'}],
-    13: [{away: 'Cleveland Browns', home: 'Denver Broncos'}],
-    14: [{away: 'Cincinnati Bengals', home: 'Dallas Cowboys'}],
-    15: [{away: 'Chicago Bears', home: 'Minnesota Vikings'}, {away: 'Atlanta Falcons', home: 'Las Vegas Raiders'}],
-    16: [{away: 'New Orleans Saints', home: 'Green Bay Packers'}],
-    17: [{away: 'Detroit Lions', home: 'San Francisco 49ers'}]
-}
+    0: [{ away: '', home: '' }],
+    1: [{ away: 'New York Jets', home: 'San Francisco 49ers' }],
+    2: [{ away: 'Atlanta Falcons', home: 'Philadelphia Eagles' }],
+    3: [
+        { away: 'Jacksonville Jaguars', home: 'Buffalo Bills' },
+        { away: 'Washington Commanders', home: 'Cincinnati Bengals' },
+    ],
+    4: [
+        { away: 'Tennessee Titans', home: 'Miami Dolphins' },
+        { away: 'Seattle Seahawks', home: 'Detroit Pistons' },
+    ],
+    5: [{ away: 'New Orleans Saints', home: 'Kansas City Chiefs' }],
+    6: [{ away: 'Buffalo Bills', home: 'New York Jets' }],
+    7: [
+        { away: 'Baltimore Ravens', home: 'Tampa Bay Buccaneers' },
+        { away: 'Los Angeles Chargers', home: 'Arizona Cardinals' },
+    ],
+    8: [{ away: 'New York Giants', home: 'Pittsburgh Steelers' }],
+    9: [{ away: 'Tampa Bay Buccaneers', home: 'Kansas City Chiefs' }],
+    10: [{ away: 'Miami Dolphins', home: 'Los Angeles Rams' }],
+    11: [{ away: 'Houston Texans', home: 'Dallas Cowboys' }],
+    12: [{ away: 'Baltimore Ravens', home: 'Los Angeles Chargers' }],
+    13: [{ away: 'Cleveland Browns', home: 'Denver Broncos' }],
+    14: [{ away: 'Cincinnati Bengals', home: 'Dallas Cowboys' }],
+    15: [
+        { away: 'Chicago Bears', home: 'Minnesota Vikings' },
+        { away: 'Atlanta Falcons', home: 'Las Vegas Raiders' },
+    ],
+    16: [{ away: 'New Orleans Saints', home: 'Green Bay Packers' }],
+    17: [{ away: 'Detroit Lions', home: 'San Francisco 49ers' }],
+};
 
-const pacific = ['Los Angeles Chargers', 'Los Angeles Rams', 'San Francisco 49ers', 'Las Vegas Raiders', 'Seattle Seahawks']
-const mountain = ['Arizona Cardinals', 'Denver Broncos']
-const central = ['Detroit Lions', 'Tennessee Titans', 'Kansas City Chiefs', 'Minnesota Vikings', 'Chicago Bears', 'Dallas Cowboys', 'Green Bay Packers', 'New Orleans Saints', 'Houston Texans']
-const eastern = ['Philadelphia Eagles', 'Miami Dolphins', 'Pittsburgh Steelers', 'Cleveland Browns', 'Carolina Panthers', 'New York Giants', 'Tampa Bay Buccaneers', 'Atlanta Falcons', 'Buffalo Bills', 'Cincinnati Bengals', 'Jacksonville Jaguars', 'New York Jets', 'Baltimore Ravens', 'Indianapolis Colts', 'New England Patriots', 'Washington Commanders']
+const pacific = [
+    'Los Angeles Chargers',
+    'Los Angeles Rams',
+    'San Francisco 49ers',
+    'Las Vegas Raiders',
+    'Seattle Seahawks',
+];
+const mountain = ['Arizona Cardinals', 'Denver Broncos'];
+const central = [
+    'Detroit Lions',
+    'Tennessee Titans',
+    'Kansas City Chiefs',
+    'Minnesota Vikings',
+    'Chicago Bears',
+    'Dallas Cowboys',
+    'Green Bay Packers',
+    'New Orleans Saints',
+    'Houston Texans',
+];
+const eastern = [
+    'Philadelphia Eagles',
+    'Miami Dolphins',
+    'Pittsburgh Steelers',
+    'Cleveland Browns',
+    'Carolina Panthers',
+    'New York Giants',
+    'Tampa Bay Buccaneers',
+    'Atlanta Falcons',
+    'Buffalo Bills',
+    'Cincinnati Bengals',
+    'Jacksonville Jaguars',
+    'New York Jets',
+    'Baltimore Ravens',
+    'Indianapolis Colts',
+    'New England Patriots',
+    'Washington Commanders',
+];
 
-const overtimeLastWeek = [
-    {away: '', home: ''}
-]
+const overtimeLastWeek = [{ away: '', home: '' }];
 
 const playoffs = {
     HoustonTexans: 'Baltimore Ravens',
     GreenBayPackers: 'San Francisco 49ers',
-    TampaBayBuccaneers: 'Detroit Lions', 
-    BuffaloBills: 'Kansas City Chiefs', 
+    TampaBayBuccaneers: 'Detroit Lions',
+    BuffaloBills: 'Kansas City Chiefs',
     ClevelandBrowns: 'Houston Texans',
     MiamiDolphins: 'Kansas City Chiefs',
     DallasCowboys: 'Green Bay Packers',
@@ -236,88 +589,106 @@ const playoffs = {
     PhiladelphiaEagles: 'Tampa Bay Buccaneers',
     BaltimoreRavens: 'Kansas City Chiefs',
     DetroitLions: 'San Francisco 49ers',
-    SanFrancisco49ers: 'Kansas City Chiefs', 
-}
-
+    SanFrancisco49ers: 'Kansas City Chiefs',
+};
 
 const sameDivision = (away, home) => {
-    if (divisions[away.replaceAll(' ', '')] === divisions[home.replaceAll(' ', '')]) return -1
-    return 0
-}
+    if (
+        divisions[away.replaceAll(' ', '')] ===
+        divisions[home.replaceAll(' ', '')]
+    )
+        return -1;
+    return 0;
+};
 
 const differentConference = (away, home) => {
-    if (conferences[away.replaceAll(' ', '')] !== conferences[home.replaceAll(' ', '')]) return 1
-    return 0
-}
+    if (
+        conferences[away.replaceAll(' ', '')] !==
+        conferences[home.replaceAll(' ', '')]
+    )
+        return 1;
+    return 0;
+};
 
 const checkBlowouts = (away, home, lastWeekGames) => {
-    let impact = 0
-    if (WEEK === 1) return 0
-    ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away)
-    const awayMargin = ag.homeTeam === away ? ag.homeScore - ag.awayScore : ag.awayScore - ag.homeScore
-    hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home)
-    const homeMargin = hg.homeTeam === away ? hg.homeScore - hg.awayScore : hg.awayScore - hg.homeScore
-    if (awayMargin < -18) impact -= 2
-    if (awayMargin < -28) impact -= 2
-    if (homeMargin < -18) impact += 2
-    if (homeMargin < -28) impact += 2
-    return impact
-}
+    let impact = 0;
+    if (WEEK === 1) return 0;
+    ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away);
+    const awayMargin =
+        ag.homeTeam === away
+            ? ag.homeScore - ag.awayScore
+            : ag.awayScore - ag.homeScore;
+    hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home);
+    const homeMargin =
+        hg.homeTeam === away
+            ? hg.homeScore - hg.awayScore
+            : hg.awayScore - hg.homeScore;
+    if (awayMargin < -18) impact -= 2;
+    if (awayMargin < -28) impact -= 2;
+    if (homeMargin < -18) impact += 2;
+    if (homeMargin < -28) impact += 2;
+    return impact;
+};
 
 const byeLastWeek = (home, away) => {
-    let impact = 0
-    const byeLastWeek = bye[WEEK-1]
+    let impact = 0;
+    const byeLastWeek = bye[WEEK - 1];
     if (byeLastWeek) {
         if (byeLastWeek.find(team => team === home.team)) {
-            const { ranking } = home
-            if (ranking < -2) impact += 4
-            if (ranking >= -2 && ranking < 2) impact += 5
-            if (ranking >= 2) impact += 7
+            const { ranking } = home;
+            if (ranking < -2) impact += 4;
+            if (ranking >= -2 && ranking < 2) impact += 5;
+            if (ranking >= 2) impact += 7;
         }
         if (byeLastWeek.find(team => team === away.team)) {
-            const { ranking } = away
-            if (ranking < -2) impact -= 5
-            if (ranking >= -2 && ranking < 2) impact -= 6
-            if (ranking >= 2) impact -= 8
+            const { ranking } = away;
+            if (ranking < -2) impact -= 5;
+            if (ranking >= -2 && ranking < 2) impact -= 6;
+            if (ranking >= 2) impact -= 8;
         }
     }
-    return impact
-}
+    return impact;
+};
 
-const checkNightGames = (game) => {
-    const {date, neutral} = game
-    if (neutral) return 0
-    if (date.includes('Thu') || date.includes('Wed') || date.includes('Fri') || date.includes('Mon')) {
-        return 2
+const checkNightGames = game => {
+    const { date, neutral } = game;
+    if (neutral) return 0;
+    if (
+        date.includes('Thu') ||
+        date.includes('Wed') ||
+        date.includes('Fri') ||
+        date.includes('Mon')
+    ) {
+        return 2;
     }
     if (date.includes('Sun') && date.includes('8:20')) {
-        return 4
+        return 4;
     }
-    return 0
-}
+    return 0;
+};
 
 const superBowlCheck = (away, home) => {
-    if (WEEK > 4) return 0
-    let impact = 0
+    if (WEEK > 4) return 0;
+    let impact = 0;
     if (home === 'Kansas City Chiefs') {
-        impact += WEEK === 1 ? 4 : 2
+        impact += WEEK === 1 ? 4 : 2;
     }
     if (away === 'Kansas City Chiefs') {
-        impact -= WEEK === 1 ? 4 : 2
+        impact -= WEEK === 1 ? 4 : 2;
     }
     if (home === 'San Francisco 49ers') {
-        impact -= WEEK === 1 ? 4 : 2
+        impact -= WEEK === 1 ? 4 : 2;
     }
     if (away === 'San Francisco 49ers') {
-        impact += WEEK === 1 ? 4 : 2
+        impact += WEEK === 1 ? 4 : 2;
     }
-    return impact
-}
+    return impact;
+};
 
 const checkLongDistance = (away, home) => {
-    if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1
-    return 0
-}
+    if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1;
+    return 0;
+};
 
 const shortDistances = [
     ['Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'Miami Dolphins'],
@@ -325,153 +696,161 @@ const shortDistances = [
     ['Atlanta Falcons', 'Carolina Panthers'],
     ['Los Angeles Rams', 'Los Angeles Chargers', 'Las Vegas Raiders'],
     ['Indianapolis Colts', 'Cincinnati Bengals'],
-    ['Philadlphia Eagles', 'New York Giants', 'New York Jets', 'Washington Commanders', 'New England Patriots', 'Baltimore Ravens', 'Buffalo Bills'],
-    ['Chicago Bears', 'Green Bay Packers']
-]
+    [
+        'Philadlphia Eagles',
+        'New York Giants',
+        'New York Jets',
+        'Washington Commanders',
+        'New England Patriots',
+        'Baltimore Ravens',
+        'Buffalo Bills',
+    ],
+    ['Chicago Bears', 'Green Bay Packers'],
+];
 
 const noDistance = [
     ['New York Jets', 'New York Giants'],
     ['Los Angeles Rams', 'Los Angeles Chargers'],
-    ['Washington Commanders', 'Baltimore Ravens']
-]
+    ['Washington Commanders', 'Baltimore Ravens'],
+];
 
 const checkShortDistance = (away, home) => {
-    const awayIncluded = shortDistances.find(a => a.includes(away))
-    if (awayIncluded){
-        if (awayIncluded.includes(home)) return -1
+    const awayIncluded = shortDistances.find(a => a.includes(away));
+    if (awayIncluded) {
+        if (awayIncluded.includes(home)) return -1;
     }
-    return 0
-}
+    return 0;
+};
 
 const checkNoDistance = (away, home) => {
-    const awayIncluded = noDistance.find(a => a.includes(away))
+    const awayIncluded = noDistance.find(a => a.includes(away));
     if (awayIncluded) {
-        if (awayIncluded.includes(home)) return -1
+        if (awayIncluded.includes(home)) return -1;
     }
-    return 0
-}
+    return 0;
+};
 
 const thursdayCheck = (awayTeam, homeTeam) => {
-    let impact = 0
-    if (thursday[WEEK-1].find(t => t === awayTeam)) {
-        impact -= 2
+    let impact = 0;
+    if (thursday[WEEK - 1].find(t => t === awayTeam)) {
+        impact -= 2;
     }
-    if (thursday[WEEK-1].find(t => t === homeTeam)) {
-        impact += 2
+    if (thursday[WEEK - 1].find(t => t === homeTeam)) {
+        impact += 2;
     }
-    return impact
-}
+    return impact;
+};
 
 const mondayCheck = (awayTeam, homeTeam) => {
-    let impact = 0
-    monday[WEEK-1].forEach(m => {
+    let impact = 0;
+    monday[WEEK - 1].forEach(m => {
         if (m.home === awayTeam) {
-            impact -= 4
+            impact -= 4;
         }
         if (m.away === homeTeam) {
-            impact -= 6
+            impact -= 6;
         }
         if (m.away === awayTeam) {
-            impact += 8 
-        } 
-    })
-    return impact
-}
+            impact += 8;
+        }
+    });
+    return impact;
+};
 
 const overtimeCheck = (awayTeam, homeTeam) => {
-    let impact = 0
+    let impact = 0;
     overtimeLastWeek.forEach(g => {
         if (awayTeam === g.home) {
-            impact += 2
+            impact += 2;
         }
         if (awayTeam === g.away) {
-            impact += 1
+            impact += 1;
         }
         if (homeTeam === g.home) {
-            impact -= 2
+            impact -= 2;
         }
         if (homeTeam === g.away) {
-            impact -= 1
+            impact -= 1;
         }
-    })
-    return impact
-}
+    });
+    return impact;
+};
 
-const timeZoneCheck = (game) => {
-    const { away, home, date } = game
-    let impact = 0
-    const hour = parseInt(date.split(' at ')[1].split(':')[0])
+const timeZoneCheck = game => {
+    const { away, home, date } = game;
+    let impact = 0;
+    const hour = parseInt(date.split(' at ')[1].split(':')[0]);
     if (hour === 1) {
         if (pacific.find(team => team === away)) {
-            impact += 2
+            impact += 2;
         }
         if (mountain.find(team => team === away)) {
-            impact += 1
+            impact += 1;
         }
         if (pacific.find(team => team === home)) {
-            impact -= 2
+            impact -= 2;
         }
         if (mountain.find(team => team === home)) {
-            impact -= 1
+            impact -= 1;
         }
     }
     if (hour > 6) {
         if (eastern.find(team => team === away)) {
-            impact += 6
+            impact += 6;
         }
         if (central.find(team => team === away)) {
-            impact += 3
+            impact += 3;
         }
         if (mountain.find(team => team === away)) {
-            impact += 1
+            impact += 1;
         }
         if (eastern.find(team => team === home)) {
-            impact -= 6
+            impact -= 6;
         }
         if (central.find(team => team === home)) {
-            impact -= 3
+            impact -= 3;
         }
         if (mountain.find(team => team === home)) {
-            impact -= 1
+            impact -= 1;
         }
     }
-    return impact
-} 
+    return impact;
+};
 
 const awayCheck = (away, lastWeekGames) => {
-    let check = false
-    if (WEEK === 1) return check
-    const alsoLastWeek = lastWeekGames.find(game => game.awayTeam === away)
+    let check = false;
+    if (WEEK === 1) return check;
+    const alsoLastWeek = lastWeekGames.find(game => game.awayTeam === away);
     if (alsoLastWeek) {
-        check = true
+        check = true;
     }
-    return check
-}
+    return check;
+};
 
 const playoffCheck = (away, home) => {
     if (playoffs[away.replaceAll(' ', '')] === home) {
-        return -6
+        return -6;
     }
     if (playoffs[home.replaceAll(' ', '')] === away) {
-        return 6
+        return 6;
     }
-    return 0
-}
+    return 0;
+};
 
-const checkHomeField = (game) => {
-    const { neutral, home } = game
-    if (neutral) return 0
-    return homeFieldAdvantage[home.replaceAll(' ', '')]
-}
+const checkHomeField = game => {
+    const { neutral, home } = game;
+    if (neutral) return 0;
+    return homeFieldAdvantage[home.replaceAll(' ', '')];
+};
 
-const rounding = (num) => Math.round(num * 100) / 100
+const rounding = num => Math.round(num * 100) / 100;
 
 const handler = async () => {
     // const tables = ['adjusted_dvoa', 'football_teams']
-    let header
+    let header;
     const games = [];
-    const end = []
-    const envFactors = []
+    const end = [];
+    const envFactors = [];
     const jsonWeek = await fetch(
         `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${WEEK}`
     );
@@ -480,92 +859,134 @@ const handler = async () => {
     const dates = Object.keys(schedule);
     dates.forEach(date => {
         schedule[date].games.forEach(game => {
-            const gameArray = game.name.split(' at ')
-            games.push({ 
+            const gameArray = game.name.split(' at ');
+            games.push({
                 away: gameArray[0],
                 home: gameArray[1],
                 date: game.status.type.detail,
                 id: game.id,
                 neutral: game.competitions[0].neutralSite,
                 espnOdds: game.competitions[0].odds[0].details,
-                abbreviation: game.competitions[0].odds[0].homeTeamOdds.team.abbreviation
-            })
+                abbreviation:
+                    game.competitions[0].odds[0].homeTeamOdds.team.abbreviation,
+            });
         });
     });
     const jsonLastWeek = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=1`
     );
     const lastWeekData = await jsonLastWeek.json();
-    const lastWeekGames = []
+    const lastWeekGames = [];
     for (const game of lastWeekData.events) {
-        const gameArray = game.name.split(' at ')
-        const gameObj = {}
-        gameObj['homeTeam'] = gameArray[1]
-        gameObj['awayTeam'] = gameArray[0]
-        gameObj['date'] = game.date.split('T')[0]
+        const gameArray = game.name.split(' at ');
+        const gameObj = {};
+        gameObj['homeTeam'] = gameArray[1];
+        gameObj['awayTeam'] = gameArray[0];
+        gameObj['date'] = game.date.split('T')[0];
         game.competitions[0].competitors.forEach(c => {
-            if (c["homeAway"] === 'home') {
-                gameObj['homeScore'] = parseInt(c.score)
+            if (c['homeAway'] === 'home') {
+                gameObj['homeScore'] = parseInt(c.score);
             } else {
-                gameObj['awayScore'] = parseInt(c.score)
+                gameObj['awayScore'] = parseInt(c.score);
             }
-        })
-        lastWeekGames.push(gameObj)
+        });
+        lastWeekGames.push(gameObj);
     }
     const client = await pool.connect();
-        const result = await pool.query(`SELECT * FROM football_teams`);
-        const teams = result.rows
-        console.log(teams)
-        games.forEach((game) => {
-            const awayTeam = game.away
-            const homeTeam = game.home
-            const away = teams.find(team => awayTeam === team.team)
-            const home = teams.find(team => homeTeam === team.team)
-            let espn = home.espn_api - away.espn_api
-            let spread = 0
-            const homeField = checkHomeField(game)
-            spread += homeField
-            const division = sameDivision(awayTeam, homeTeam)
-            spread += division
-            const conference = differentConference(awayTeam, homeTeam)
-            spread += conference
-            const bye = byeLastWeek(home, away)
-            spread += bye
-            let backToBackAway = false
-            const blowouts = checkBlowouts(awayTeam, homeTeam, lastWeekGames)
-            spread += blowouts
-            backToBackAway = awayCheck(awayTeam, lastWeekGames)
-            spread += backToBackAway
-            const nightGame = checkNightGames(game)
-            spread += nightGame 
-            const superBowl = superBowlCheck(awayTeam, homeTeam)
-            spread += superBowl
-            const longDistance = checkLongDistance(awayTeam, homeTeam)
-            spread += longDistance
-            const shortDistance = checkShortDistance(awayTeam, homeTeam)
-            spread += shortDistance
-            const noDistance = checkNoDistance(awayTeam, homeTeam)
-            spread += noDistance
-            const thursday = thursdayCheck(awayTeam, homeTeam)
-            spread += thursday
-            const monday = mondayCheck(awayTeam, homeTeam)
-            spread += monday
-            const overtime = overtimeCheck(awayTeam, homeTeam)
-            spread += overtime
-            const timeZone =  timeZoneCheck(game)
-            spread += timeZone
-            const playoffRematch = playoffCheck(awayTeam, homeTeam)
-            spread += playoffRematch
-            spread = spread / 5
-            let homeSpread  = rounding(spread+espn) * -1
-            const homeEspn = homeSpread > 0 ? `+${homeSpread}` : homeSpread
-            const dvoa = home.adjusted_dvoa - away.adjusted_dvoa
-            homeSpread = rounding(spread+dvoa) * -1
-            const homeDvoa = homeSpread > 0 ? `+${homeSpread}` : homeSpread
-            envFactors.push([home.team, away.team, homeField, division, conference, nightGame, longDistance, shortDistance, thursday, monday, overtime, playoffRematch, timeZone, superBowl, bye, blowouts, rounding(spread), backToBackAway])
-            end.push([home.team, home.espn_api, home.adjusted_dvoa, away.team, away.espn_api, away.adjusted_dvoa, rounding(spread), `${homeTeam} ${homeEspn}`, `${homeTeam} ${homeDvoa}`, game.espnOdds])
-        })
-    header = ['Home Team', 'Home ESPN', 'Home DVOA', 'Away Team', 'Away ESPN', 'Away DVOA', 'Environmental Factors', 'ESPN FPI Spread', 'Adjusted DVOA Spread', 'ESPN Spread'];
+    const result = await pool.query(`SELECT * FROM football_teams`);
+    const teams = result.rows;
+    console.log(teams);
+    games.forEach(game => {
+        const awayTeam = game.away;
+        const homeTeam = game.home;
+        const away = teams.find(team => awayTeam === team.team);
+        const home = teams.find(team => homeTeam === team.team);
+        let espn = home.espn_api - away.espn_api;
+        let spread = 0;
+        const homeField = checkHomeField(game);
+        spread += homeField;
+        const division = sameDivision(awayTeam, homeTeam);
+        spread += division;
+        const conference = differentConference(awayTeam, homeTeam);
+        spread += conference;
+        const bye = byeLastWeek(home, away);
+        spread += bye;
+        let backToBackAway = false;
+        const blowouts = checkBlowouts(awayTeam, homeTeam, lastWeekGames);
+        spread += blowouts;
+        backToBackAway = awayCheck(awayTeam, lastWeekGames);
+        spread += backToBackAway;
+        const nightGame = checkNightGames(game);
+        spread += nightGame;
+        const superBowl = superBowlCheck(awayTeam, homeTeam);
+        spread += superBowl;
+        const longDistance = checkLongDistance(awayTeam, homeTeam);
+        spread += longDistance;
+        const shortDistance = checkShortDistance(awayTeam, homeTeam);
+        spread += shortDistance;
+        const noDistance = checkNoDistance(awayTeam, homeTeam);
+        spread += noDistance;
+        const thursday = thursdayCheck(awayTeam, homeTeam);
+        spread += thursday;
+        const monday = mondayCheck(awayTeam, homeTeam);
+        spread += monday;
+        const overtime = overtimeCheck(awayTeam, homeTeam);
+        spread += overtime;
+        const timeZone = timeZoneCheck(game);
+        spread += timeZone;
+        const playoffRematch = playoffCheck(awayTeam, homeTeam);
+        spread += playoffRematch;
+        spread = spread / 5;
+        let homeSpread = rounding(spread + espn) * -1;
+        const homeEspn = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        const dvoa = home.adjusted_dvoa - away.adjusted_dvoa;
+        homeSpread = rounding(spread + dvoa) * -1;
+        const homeDvoa = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        envFactors.push([
+            home.team,
+            away.team,
+            homeField,
+            division,
+            conference,
+            nightGame,
+            longDistance,
+            shortDistance,
+            thursday,
+            monday,
+            overtime,
+            playoffRematch,
+            timeZone,
+            superBowl,
+            bye,
+            blowouts,
+            rounding(spread),
+            backToBackAway,
+        ]);
+        end.push([
+            home.team,
+            home.espn_api,
+            home.adjusted_dvoa,
+            away.team,
+            away.espn_api,
+            away.adjusted_dvoa,
+            rounding(spread),
+            `${homeTeam} ${homeEspn}`,
+            `${homeTeam} ${homeDvoa}`,
+            game.espnOdds,
+        ]);
+    });
+    header = [
+        'Home Team',
+        'Home ESPN',
+        'Home DVOA',
+        'Away Team',
+        'Away ESPN',
+        'Away DVOA',
+        'Environmental Factors',
+        'ESPN FPI Spread',
+        'Adjusted DVOA Spread',
+        'ESPN Spread',
+    ];
     const csvFromGames = convertArrayToCSV(end, {
         header,
         separator: ',',
@@ -574,10 +995,29 @@ const handler = async () => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
-    header = ['Home Team', 'Away Team', 'Home Field Advantage', 'Same Division', 'Different Conference', 'Night Game', 'Long Distance', 'Short Distance', 'Thurs Night Last Week', 'Mon Night Game Last Week', 'Overtime Game Last Week', 'Playoff Rematch', 'Timezone Factors', 'Super Bowl Impact', 'Bye Week', 'Last Week Blowout Factor', 'Environmental Factors', 'Back to Back Away',];
+    header = [
+        'Home Team',
+        'Away Team',
+        'Home Field Advantage',
+        'Same Division',
+        'Different Conference',
+        'Night Game',
+        'Long Distance',
+        'Short Distance',
+        'Thurs Night Last Week',
+        'Mon Night Game Last Week',
+        'Overtime Game Last Week',
+        'Playoff Rematch',
+        'Timezone Factors',
+        'Super Bowl Impact',
+        'Bye Week',
+        'Last Week Blowout Factor',
+        'Environmental Factors',
+        'Back to Back Away',
+    ];
     const csvEnvFactors = convertArrayToCSV(envFactors, {
         header,
-        separator: ','
+        separator: ',',
     });
     fs.writeFile(`../csv/envFactorsWeek${WEEK}.csv`, csvEnvFactors, err => {
         if (err) console.log(err);
