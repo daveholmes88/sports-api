@@ -941,6 +941,12 @@ const handler = async () => {
         const dvoa = home.adjusted_dvoa - away.adjusted_dvoa;
         homeSpread = rounding(spread + dvoa) * -1;
         const homeDvoa = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        const jeff = home.jeff - away.jeff;
+        homeSpread = rounding(spread + jeff) * -1;
+        const homeJeff = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        const ffp = home.ffp_power - away.ffp_power;
+        homeSpread = rounding(spread + ffp) * -1;
+        const homeffp = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
         envFactors.push([
             home.team,
             away.team,
@@ -965,25 +971,37 @@ const handler = async () => {
             home.team,
             home.espn_api,
             home.adjusted_dvoa,
+            home.jeff,
+            home.ffp_power,
             away.team,
             away.espn_api,
             away.adjusted_dvoa,
+            away.jeff,
+            away.ffp_power,
             rounding(spread),
             `${homeTeam} ${homeEspn}`,
             `${homeTeam} ${homeDvoa}`,
+            `${homeTeam} ${homeJeff}`,
+            `${homeTeam} ${homeffp}`,
             game.espnOdds,
         ]);
     });
     header = [
         'Home Team',
-        'Home ESPN',
+        'Home FPI',
         'Home DVOA',
+        'Home Jeff',
+        'Home FFP',
         'Away Team',
-        'Away ESPN',
+        'Away FPI',
         'Away DVOA',
+        'Away Jeff',
+        'Away FFP', 
         'Environmental Factors',
-        'ESPN FPI Spread',
+        'FPI Spread',
         'Adjusted DVOA Spread',
+        'Jeff Spread', 
+        'FFP Spread',
         'ESPN Spread',
     ];
     const csvFromGames = convertArrayToCSV(end, {
