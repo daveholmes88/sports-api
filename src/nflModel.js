@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const WEEK = 1;
+const WEEK = 2;
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -120,6 +120,41 @@ const conferences = {
     NewOrleansSaints: 'nfc',
     CarolinaPanthers: 'nfc',
     LosAngelesRams: 'nfc',
+};
+
+const timezones = {
+    ChicagoBears: 'central',
+    GreenBayPackers: 'central',
+    MinnesotaVikings: 'central',
+    DetroitLions: 'east',
+    PittsburghSteelers: 'east',
+    BaltimoreRavens: 'east',
+    ClevelandBrowns: 'east',
+    CincinnatiBengals: 'east',
+    NewYorkJets: 'east',
+    MiamiDolphins: 'east',
+    NewEnglandPatriots: 'east',
+    BuffaloBills: 'east',
+    JacksonvilleJaguars: 'east',
+    TennesseeTitans: 'east',
+    HoustonTexans: 'central',
+    IndianapolisColts: 'east',
+    DenverBroncos: 'mountain',
+    LosAngelesChargers: 'pacific',
+    LasVegasRaiders: 'pacific',
+    KansasCityChiefs: 'central',
+    PhiladelphiaEagles: 'east',
+    NewYorkGiants: 'east',
+    DallasCowboys: 'central',
+    WashingtonCommanders: 'east',
+    TampaBayBuccaneers: 'east',
+    SeattleSeahawks: 'pacific',
+    SanFrancisco49ers: 'pacific',
+    ArizonaCardinals: 'pacific',
+    AtlantaFalcons: 'east',
+    NewOrleansSaints: 'east',
+    CarolinaPanthers: 'east',
+    LosAngelesRams: 'pacific',
 };
 
 const bye = {
@@ -817,14 +852,26 @@ const timeZoneCheck = game => {
     return impact;
 };
 
-const awayCheck = (away, lastWeekGames) => {
-    let check = false;
+const awayCheck = (away, lastWeekGames, home) => {
+    let impact = 0;
     if (WEEK === 1) return check;
-    const alsoLastWeek = lastWeekGames.find(game => game.awayTeam === away);
-    if (alsoLastWeek) {
-        check = true;
+    const alw = lastWeekGames.find(game => game.awayTeam === away);
+    if (alw) {
+        const { homeTeam } = alw
+        if (timezones[away.replaceAll(' ', '')] === 'pacific' && (timezones[home.replaceAll(' ', '')] === 'east' || timezones[home.replaceAll(' ', '')] === 'central')) {
+            (timezones[homeTeam.replaceAll(' ', '')] === 'east' || timezones[homeTeam.replaceAll(' ', '')] === 'central') ? impact = 2 : null
+        }
+        if (timezones[away.replaceAll(' ', '')] === 'mountain' && timezones[home.replaceAll(' ', '')] === 'east') {
+            timezones[homeTeam.replaceAll(' ', '')] === 'east' ? impact = 2 : null
+        }
+        if (timezones[away.replaceAll(' ', '')] === 'central' && timezones[home.replaceAll(' ', '')] === 'pacific') {
+            timezones[homeTeam.replaceAll(' ', '')] === 'mountain' ? impact = 2 : null
+        }
+        if (timezones[away.replaceAll(' ', '')] === 'east' && (timezones[home.replaceAll(' ', '')] === 'pacific' || timezones[home.replaceAll(' ', '')] === 'mountain')) {
+            (timezones[homeTeam.replaceAll(' ', '')] === 'mountain' || timezones[homeTeam.replaceAll(' ', '')] === 'pacific') ? impact = 2 : null
+        }
     }
-    return check;
+    return impact;
 };
 
 const playoffCheck = (away, home) => {
@@ -846,7 +893,6 @@ const checkHomeField = game => {
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = async () => {
-    // const tables = ['adjusted_dvoa', 'football_teams']
     let header;
     const games = [];
     const end = [];
@@ -910,10 +956,9 @@ const handler = async () => {
         spread += conference;
         const bye = byeLastWeek(home, away);
         spread += bye;
-        let backToBackAway = false;
         const blowouts = checkBlowouts(awayTeam, homeTeam, lastWeekGames);
         spread += blowouts;
-        backToBackAway = awayCheck(awayTeam, lastWeekGames);
+        const backToBackAway = awayCheck(awayTeam, lastWeekGames, homeTeam);
         spread += backToBackAway;
         const nightGame = checkNightGames(game);
         spread += nightGame;
@@ -964,8 +1009,8 @@ const handler = async () => {
             superBowl,
             bye,
             blowouts,
-            rounding(spread),
             backToBackAway,
+            rounding(spread),
         ]);
         end.push([
             home.team,
@@ -1029,8 +1074,8 @@ const handler = async () => {
         'Super Bowl Impact',
         'Bye Week',
         'Last Week Blowout Factor',
-        'Environmental Factors',
         'Back to Back Away',
+        'Environmental Factors',
     ];
     const csvEnvFactors = convertArrayToCSV(envFactors, {
         header,
