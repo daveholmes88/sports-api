@@ -36,8 +36,6 @@ for idx, team in enumerate(teams):
     obj['rankings'] = rankings[idx] 
     done.append(obj)
 
-print(done)
-
 doneJson = json.dumps(done, indent=4)
-with open("../espn.json", "w") as outfile:
+with open("../csv/espn.json", "w") as outfile:
     outfile.write(doneJson)
