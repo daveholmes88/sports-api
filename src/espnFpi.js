@@ -2,7 +2,7 @@ const fs = require('fs');
 const { convertArrayToCSV } = require('convert-array-to-csv');
 const pkg = require('pg');
 require('dotenv').config();
-const envHandler = require('./nflEnv');
+const env = require('./nflEnv');
 const nflGames = require('./nflGames')
 
 const { Pool } = pkg;
@@ -19,9 +19,14 @@ const pool = new Pool({
     //   }
 });
 
+const rounding = num => Math.round(num * 100) / 100;
+
 const handler = async () => {
-    const weekData = await nflGames.handler(WEEK)
-    const { games, lastWeekGames } = weekData
+    const json = fs.readFileSync('../csv/espn.json', 'utf8');
+    const fpi = JSON.parse(json);
+    const end = [];
+    const weekData = await nflGames.handler(WEEK);
+    const { games, lastWeekGames } = weekData;
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM football_teams`);
     const teams = result.rows;
@@ -30,74 +35,44 @@ const handler = async () => {
         const homeTeam = game.home;
         const away = teams.find(team => awayTeam === team.team);
         const home = teams.find(team => homeTeam === team.team);
-        let espn = home.espn_api - away.espn_api;
-        const spread = envHandler.env(game, WEEK, lastWeekGames, away, home, envFactors)
-        let homeSpread = rounding(spread + espn) * -1;
-        const homeEspn = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        const awayFpi = fpi.find(team => awayTeam === team.name).rankings;
+        const homeFpi = fpi.find(team => homeTeam === team.name).rankings;
+        let db = home.espn_api - away.espn_api;
+        const spread = env.handler(game, WEEK, lastWeekGames, away, home)
+        let homeSpread = rounding(spread + db) * -1;
+        const homeDb = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        const espnSpread = rounding(homeFpi - awayFpi + spread) * -1;
+        const homeEspn = espnSpread > 0 ? `+${espnSpread}` : espnSpread;
         end.push([
             home.team,
             home.espn_api,
+            homeFpi,
             away.team,
             away.espn_api,
-            rounding(spread),
+            awayFpi,
+            spread,
+            `${homeTeam} ${homeDb}`,
             `${homeTeam} ${homeEspn}`,
-            `${homeTeam} ${homeDvoa}`,
-            `${homeTeam} ${homeJeff}`,
-            `${homeTeam} ${homeffp}`,
             game.espnOdds,
         ]);
     });
-    header = [
+    const header = [
         'Home Team',
-        'Home FPI',
-        'Home DVOA',
-        'Home Jeff',
-        'Home FFP',
+        'Home DB FPI',
+        'Home ESPN FPI',
         'Away Team',
-        'Away FPI',
-        'Away DVOA',
-        'Away Jeff',
-        'Away FFP',
+        'Away DB FPI',
+        'Away ESPN FPI',
         'Environmental Factors',
-        'FPI Spread',
-        'Adjusted DVOA Spread',
-        'Jeff Spread',
-        'FFP Spread',
+        'DB FPI Spread',
+        'ESPN FPI Spread',
         'ESPN Spread',
     ];
     const csvFromGames = convertArrayToCSV(end, {
         header,
         separator: ',',
     });
-    fs.writeFile(`../csv/nflModelWeek${WEEK}.csv`, csvFromGames, err => {
-        if (err) console.log(err);
-        else console.log('csv file written');
-    });
-    header = [
-        'Home Team',
-        'Away Team',
-        'Home Field Advantage',
-        'Same Division',
-        'Different Conference',
-        'Night Game',
-        'Long Distance',
-        'Short Distance',
-        'Thurs Night Last Week',
-        'Mon Night Game Last Week',
-        'Overtime Game Last Week',
-        'Playoff Rematch',
-        'Timezone Factors',
-        'Super Bowl Impact',
-        'Bye Week',
-        'Last Week Blowout Factor',
-        'Back to Back Away',
-        'Environmental Factors',
-    ];
-    const csvEnvFactors = convertArrayToCSV(envFactors, {
-        header,
-        separator: ',',
-    });
-    fs.writeFile(`../csv/envFactorsWeek${WEEK}.csv`, csvEnvFactors, err => {
+    fs.writeFile(`../csv/nflEspnWeek${WEEK}.csv`, csvFromGames, err => {
         if (err) console.log(err);
         else console.log('csv file written');
     });

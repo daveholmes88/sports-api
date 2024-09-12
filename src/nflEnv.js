@@ -897,7 +897,7 @@ const checkHomeField = game => {
 
 const rounding = num => Math.round(num * 100) / 100;
 
-const handler = (game, week, lastWeekGames, away, home, envFactors) => {
+const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     const awayTeam = game.away;
     const homeTeam = game.home;
     let spread = 0;
