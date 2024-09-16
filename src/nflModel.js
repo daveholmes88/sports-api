@@ -7,7 +7,7 @@ const nflGames = require('./nflGames')
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const WEEK = 2;
+const WEEK = 3;
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -28,47 +28,6 @@ const handler = async () => {
     const envFactors = [];
     const weekData = await nflGames.handler(WEEK)
     const { games, lastWeekGames } = weekData
-    // const jsonWeek = await fetch(
-    //     `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${WEEK}`
-    // );
-    // const weekData = await jsonWeek.json();
-    // const schedule = weekData.content.schedule;
-    // const dates = Object.keys(schedule);
-    // dates.forEach(date => {
-    //     schedule[date].games.forEach(game => {
-    //         const gameArray = game.name.split(' at ');
-    //         games.push({
-    //             away: gameArray[0],
-    //             home: gameArray[1],
-    //             date: game.status.type.detail,
-    //             id: game.id,
-    //             neutral: game.competitions[0].neutralSite,
-    //             espnOdds: game.competitions[0].odds[0].details,
-    //             abbreviation:
-    //                 game.competitions[0].odds[0].homeTeamOdds.team.abbreviation,
-    //         });
-    //     });
-    // });
-    // const jsonLastWeek = await fetch(
-    //     `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=${WEEK - 1}`
-    // );
-    // const lastWeekData = await jsonLastWeek.json();
-    // const lastWeekGames = [];
-    // for (const game of lastWeekData.events) {
-    //     const gameArray = game.name.split(' at ');
-    //     const gameObj = {};
-    //     gameObj['homeTeam'] = gameArray[1];
-    //     gameObj['awayTeam'] = gameArray[0];
-    //     gameObj['date'] = game.date.split('T')[0];
-    //     game.competitions[0].competitors.forEach(c => {
-    //         if (c['homeAway'] === 'home') {
-    //             gameObj['homeScore'] = parseInt(c.score);
-    //         } else {
-    //             gameObj['awayScore'] = parseInt(c.score);
-    //         }
-    //     });
-    //     lastWeekGames.push(gameObj);
-    // }
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM football_teams`);
     const teams = result.rows;

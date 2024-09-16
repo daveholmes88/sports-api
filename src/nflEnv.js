@@ -416,7 +416,7 @@ const longDistance = {
         'San Francisco 49ers',
         'Seattle Seahawks',
     ],
-    KansisCityChiefs: [],
+    KansasCityChiefs: [],
     PhiladelphiaEagles: [
         'Los Angeles Chargers',
         'Los Angeles Rams',
@@ -702,6 +702,7 @@ const superBowlCheck = (away, home, week) => {
 };
 
 const checkLongDistance = (away, home) => {
+    console.log(away)
     if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1;
     return 0;
 };

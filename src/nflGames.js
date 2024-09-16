@@ -9,6 +9,13 @@ const handler = async (week) => {
     const dates = Object.keys(schedule);
     dates.forEach(date => {
         schedule[date].games.forEach(game => {
+            let odds = 'n/a'
+            let abs = 'n/a'
+            console.log()
+            if (game.competitions[0]?.odds) {
+                odds = game.competitions[0]?.odds[0].details
+                abs = game.competitions[0]?.odds[0]?.homeTeamOdds?.team?.abbreviation
+            }
             const gameArray = game.name.split(' at ');
             games.push({
                 away: gameArray[0],
@@ -16,9 +23,8 @@ const handler = async (week) => {
                 date: game.status.type.detail,
                 id: game.id,
                 neutral: game.competitions[0].neutralSite,
-                espnOdds: game.competitions[0].odds[0].details,
-                abbreviation:
-                    game.competitions[0].odds[0].homeTeamOdds.team.abbreviation,
+                espnOdds: odds,
+                abbreviation: abs,
             });
         });
     });
