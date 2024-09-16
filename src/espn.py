@@ -14,7 +14,6 @@ espn = requests.get(url, headers=headers)
 espnSoup = BeautifulSoup(espn.content, "html.parser")
 
 tbodies = espnSoup.find_all("tbody", {"class": "Table__TBODY"})
-print(tbodies)
 teams = []
 
 for row in tbodies[0]:
