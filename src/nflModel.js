@@ -7,7 +7,7 @@ const nflGames = require('./nflGames')
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const WEEK = 3;
+const WEEK = process.env.WEEK;
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -22,6 +22,7 @@ const pool = new Pool({
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = async () => {
+    console.log('WEEK', process.env)
     let header;
     // const games = [];
     const end = [];
@@ -90,7 +91,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile(`../csv/nflModelWeek${WEEK}.csv`, csvFromGames, err => {
+    fs.writeFile(`./csv/nflModelWeek${WEEK}.csv`, csvFromGames, err => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
@@ -118,7 +119,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile(`../csv/envFactorsWeek${WEEK}.csv`, csvEnvFactors, err => {
+    fs.writeFile(`./csv/envFactorsWeek${WEEK}.csv`, csvEnvFactors, err => {
         if (err) console.log(err);
         else console.log('csv file written');
     });

@@ -28,11 +28,13 @@ const handler = async (week) => {
             });
         });
     });
+    console.log('week', week)
     const jsonLastWeek = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=${week - 1}`
     );
     const lastWeekData = await jsonLastWeek.json();
     const lastWeekGames = [];
+    // console.log(lastWeekData)
     for (const game of lastWeekData.events) {
         const gameArray = game.name.split(' at ');
         const gameObj = {};
