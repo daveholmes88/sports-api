@@ -3,7 +3,7 @@ const { convertArrayToCSV } = require('convert-array-to-csv');
 const pkg = require('pg');
 require('dotenv').config();
 const env = require('./nflEnv');
-const nflGames = require('./nflGames')
+const nflGames = require('./nflGames');
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
@@ -22,13 +22,13 @@ const pool = new Pool({
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = async () => {
-    console.log('WEEK', process.env)
+    console.log('WEEK', process.env);
     let header;
     // const games = [];
     const end = [];
     const envFactors = [];
-    const weekData = await nflGames.handler(WEEK)
-    const { games, lastWeekGames } = weekData
+    const weekData = await nflGames.handler(WEEK);
+    const { games, lastWeekGames } = weekData;
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM football_teams`);
     const teams = result.rows;
@@ -38,7 +38,14 @@ const handler = async () => {
         const away = teams.find(team => awayTeam === team.team);
         const home = teams.find(team => homeTeam === team.team);
         let espn = home.espn_api - away.espn_api;
-        const spread = env.handler(game, WEEK, lastWeekGames, away, home, envFactors)
+        const spread = env.handler(
+            game,
+            WEEK,
+            lastWeekGames,
+            away,
+            home,
+            envFactors
+        );
         let homeSpread = rounding(spread + espn) * -1;
         const homeEspn = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
         const dvoa = home.adjusted_dvoa - away.adjusted_dvoa;

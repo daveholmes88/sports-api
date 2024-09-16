@@ -590,7 +590,9 @@ const eastern = [
     'Washington Commanders',
 ];
 
-const overtimeLastWeek = [{ away: 'Seattle Seahawks', home: 'New England Patriots' }];
+const overtimeLastWeek = [
+    { away: 'Seattle Seahawks', home: 'New England Patriots' },
+];
 
 const playoffs = {
     HoustonTexans: 'Baltimore Ravens',
@@ -702,7 +704,7 @@ const superBowlCheck = (away, home, week) => {
 };
 
 const checkLongDistance = (away, home) => {
-    console.log(away)
+    console.log(away);
     if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1;
     return 0;
 };
@@ -934,7 +936,7 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     spread += timeZone;
     const playoffRematch = playoffCheck(awayTeam, homeTeam);
     spread += playoffRematch;
-    spread = spread / 5
+    spread = spread / 5;
     envFactors.push([
         home.team,
         away.team,
@@ -958,4 +960,4 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     return spread;
 };
 
-module.exports = { handler }
+module.exports = { handler };

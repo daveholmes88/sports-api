@@ -3,7 +3,7 @@ const { convertArrayToCSV } = require('convert-array-to-csv');
 const pkg = require('pg');
 require('dotenv').config();
 const env = require('./nflEnv');
-const nflGames = require('./nflGames')
+const nflGames = require('./nflGames');
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
@@ -38,7 +38,7 @@ const handler = async () => {
         const awayFpi = fpi.find(team => awayTeam === team.name).rankings;
         const homeFpi = fpi.find(team => homeTeam === team.name).rankings;
         let db = home.espn_api - away.espn_api;
-        const spread = env.handler(game, WEEK, lastWeekGames, away, home)
+        const spread = env.handler(game, WEEK, lastWeekGames, away, home);
         let homeSpread = rounding(spread + db) * -1;
         const homeDb = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
         const espnSpread = rounding(homeFpi - awayFpi + spread) * -1;

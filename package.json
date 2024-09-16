@@ -7,6 +7,9 @@
         "scrapeTable": "node src/scrapeTable",
         "dkScrape": "node src/dkScrape",
         "nflModel": "node src/nflModel",
+        "nflPff": "node src/nflpffRatings",
+        "nflEspn": "node src/espnFpi",
+        "nflJeff": "node src/jeff",
         "prettier": "npx prettier . --write"
     },
     "dependencies": {
