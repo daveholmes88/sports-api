@@ -757,6 +757,12 @@ const thursdayCheck = (awayTeam, homeTeam, week) => {
     if (thursday[week - 1].find(t => t === homeTeam)) {
         impact += 2;
     }
+    if (friday[week - 1].find(t => t === awayTeam)) {
+        impact -= 2;
+    }
+    if (friday[week - 1].find(t => t === homeTeam)) {
+        impact += 2;
+    }
     return impact;
 };
 
