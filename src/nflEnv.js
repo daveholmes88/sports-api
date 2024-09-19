@@ -641,10 +641,12 @@ const checkBlowouts = (away, home, lastWeekGames, week) => {
         hg.homeTeam === away
             ? hg.homeScore - hg.awayScore
             : hg.awayScore - hg.homeScore;
-    if (awayMargin < -18) impact -= 2;
-    if (awayMargin < -28) impact -= 2;
-    if (homeMargin < -18) impact += 2;
-    if (homeMargin < -28) impact += 2;
+    if (awayMargin < -16) impact -= 2;
+    if (awayMargin < -23) impact -= 2;
+    if (awayMargin < -27) impact -= 2;
+    if (homeMargin < -16) impact += 2;
+    if (homeMargin < -23) impact += 2;
+    if (awayMargin < -27) impact += 2;
     return impact;
 };
 
@@ -751,17 +753,13 @@ const checkNoDistance = (away, home) => {
 
 const thursdayCheck = (awayTeam, homeTeam, week) => {
     let impact = 0;
-    if (thursday[week - 1].find(t => t === awayTeam)) {
-        impact -= 2;
-    }
-    if (thursday[week - 1].find(t => t === homeTeam)) {
-        impact += 2;
-    }
-    if (friday[week - 1].find(t => t === awayTeam)) {
-        impact -= 2;
-    }
-    if (friday[week - 1].find(t => t === homeTeam)) {
-        impact += 2;
+    if (thursday[week - 1]) { 
+        thursday[week - 1].find(t => t === awayTeam) ? impact -= 2 : null;
+        thursday[week - 1].find(t => t === homeTeam) ? impact += 2 : null;
+        }
+    if (friday[week-1]) {
+        friday[week - 1].find(t => t === awayTeam) ? impact -= 2 : null;
+        friday[week - 1].find(t => t === homeTeam) ? impact += 2 : null;
     }
     return impact;
 };

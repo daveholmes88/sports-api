@@ -7,9 +7,12 @@
         "scrapeTable": "node src/scrapeTable",
         "dkScrape": "node src/dkScrape",
         "nflModel": "node src/nflModel",
-        "nflPff": "node src/nflpffRatings",
+        "nflPff": "node src/pffRatings",
+        "nflPffCsv": "node src/pffCsv",
         "nflEspn": "node src/espnFpi",
         "nflJeff": "node src/jeff",
+        "nflScrapePff": "node src/pffCsv",
+        "getNflEspn": "python src/espn.py",
         "prettier": "npx prettier . --write"
     },
     "dependencies": {

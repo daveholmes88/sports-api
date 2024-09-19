@@ -36,5 +36,5 @@ for idx, team in enumerate(teams):
     done.append(obj)
 
 doneJson = json.dumps(done, indent=4)
-with open("../csv/espn.json", "w") as outfile:
+with open("./csv/espn.json", "w") as outfile:
     outfile.write(doneJson)

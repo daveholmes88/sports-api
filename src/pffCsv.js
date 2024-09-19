@@ -35,7 +35,9 @@ const rename = {
     CAR: 'Carolina Panthers',
 };
 
-fs.readFile('../csv/pff-ratings-week2.csv', 'utf8', (err, data) => {
+const WEEK = process.env.WEEK;
+
+fs.readFile(`./csv/pff-ratings-week${WEEK}.csv`, 'utf8', (err, data) => {
     if (err) {
         console.error(err);
         return;
@@ -56,7 +58,7 @@ fs.readFile('../csv/pff-ratings-week2.csv', 'utf8', (err, data) => {
         }
     }
     const jsonString = JSON.stringify(teams);
-    fs.writeFile('../csv/ffpRankings.json', jsonString, err => {
+    fs.writeFile(`./csv/pffRankingsWeek${WEEK}.json`, jsonString, err => {
         if (err) {
             console.error(err);
             return;

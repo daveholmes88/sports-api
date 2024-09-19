@@ -22,9 +22,7 @@ const pool = new Pool({
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = async () => {
-    console.log('WEEK', process.env);
     let header;
-    // const games = [];
     const end = [];
     const envFactors = [];
     const weekData = await nflGames.handler(WEEK);

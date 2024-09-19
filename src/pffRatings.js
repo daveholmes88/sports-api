@@ -22,7 +22,7 @@ const pool = new Pool({
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = async () => {
-    const json = fs.readFileSync('../csv/ffpRankings.json', 'utf8');
+    const json = fs.readFileSync(`./csv/pffRankingsWeek${WEEK}.json`, 'utf8');
     const fpi = JSON.parse(json);
     const end = [];
     const weekData = await nflGames.handler(WEEK);
@@ -72,7 +72,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile(`../csv/nflPffWeek${WEEK}.csv`, csvFromGames, err => {
+    fs.writeFile(`./csv/nflPffWeek${WEEK}.csv`, csvFromGames, err => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
