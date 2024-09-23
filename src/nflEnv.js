@@ -590,9 +590,7 @@ const eastern = [
     'Washington Commanders',
 ];
 
-const overtimeLastWeek = [
-    { away: 'Seattle Seahawks', home: 'New England Patriots' },
-];
+const overtimeLastWeek = [{ away: '', home: '' }];
 
 const playoffs = {
     HoustonTexans: 'Baltimore Ravens',
@@ -706,7 +704,6 @@ const superBowlCheck = (away, home, week) => {
 };
 
 const checkLongDistance = (away, home) => {
-    console.log(away);
     if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1;
     return 0;
 };
@@ -753,13 +750,13 @@ const checkNoDistance = (away, home) => {
 
 const thursdayCheck = (awayTeam, homeTeam, week) => {
     let impact = 0;
-    if (thursday[week - 1]) { 
-        thursday[week - 1].find(t => t === awayTeam) ? impact -= 2 : null;
-        thursday[week - 1].find(t => t === homeTeam) ? impact += 2 : null;
-        }
-    if (friday[week-1]) {
-        friday[week - 1].find(t => t === awayTeam) ? impact -= 2 : null;
-        friday[week - 1].find(t => t === homeTeam) ? impact += 2 : null;
+    if (thursday[week - 1]) {
+        thursday[week - 1].find(t => t === awayTeam) ? (impact -= 2) : null;
+        thursday[week - 1].find(t => t === homeTeam) ? (impact += 2) : null;
+    }
+    if (friday[week - 1]) {
+        friday[week - 1].find(t => t === awayTeam) ? (impact -= 2) : null;
+        friday[week - 1].find(t => t === homeTeam) ? (impact += 2) : null;
     }
     return impact;
 };

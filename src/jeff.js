@@ -47,7 +47,7 @@ const jeff = {
     Tennessee_Titans: 16.26,
     New_Orleans_Saints: 19.92,
     Washington_Commanders: 15.01,
-    Las_Vegas_Raiders: 16.00,
+    Las_Vegas_Raiders: 16.0,
     New_England_Patriots: 16.12,
     Denver_Broncos: 14.31,
     New_York_Giants: 13.14,
