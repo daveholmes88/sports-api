@@ -30,6 +30,8 @@ const handler = async () => {
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM football_teams`);
     const teams = result.rows;
+    client.release();
+    pool.end();
     games.forEach(game => {
         const awayTeam = game.away;
         const homeTeam = game.home;
@@ -118,6 +120,7 @@ const handler = async () => {
         'Bye Week',
         'Last Week Blowout Factor',
         'Back to Back Away',
+        'Three Of Four Away',
         'Environmental Factors',
     ];
     const csvEnvFactors = convertArrayToCSV(envFactors, {
@@ -128,8 +131,6 @@ const handler = async () => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
-    client.release();
-    pool.end();
 };
 
 handler();

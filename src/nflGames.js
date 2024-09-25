@@ -1,3 +1,19 @@
+const pkg = require('pg');
+require('dotenv').config();
+
+const { Pool } = pkg;
+const PASSWORD = process.env.PASSWORD;
+
+const pool = new Pool({
+    user: 'davidholmes',
+    database: 'backendgambling_development',
+    password: PASSWORD,
+    port: 5432, // This is the default PostgreSQL port
+    //   ssl: {
+    //     rejectUnauthorized: false
+    //   }
+});
+
 const handler = async week => {
     const games = [];
     const jsonWeek = await fetch(
@@ -10,7 +26,6 @@ const handler = async week => {
         schedule[date].games.forEach(game => {
             let odds = 'n/a';
             let abs = 'n/a';
-            console.log();
             if (game.competitions[0]?.odds) {
                 odds = game.competitions[0]?.odds[0].details;
                 abs =
@@ -29,7 +44,13 @@ const handler = async week => {
             });
         });
     });
-    console.log('week', week);
+    const client = await pool.connect();
+    for (let game of games) {
+        const sql = "SELECT * FROM nfl_games WHERE away_team = $1";
+        const allAwayGames = await client.query(sql, [game.away]);
+        const recent = allAwayGames.rows.filter(g => g.week === week-1 || g.week === week-2 || g.week === week-3)
+        if (recent.length > 1) game.allAway = true
+    }
     const jsonLastWeek = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=${
             week - 1
@@ -37,7 +58,6 @@ const handler = async week => {
     );
     const lastWeekData = await jsonLastWeek.json();
     const lastWeekGames = [];
-    // console.log(lastWeekData)
     for (const game of lastWeekData.events) {
         const gameArray = game.name.split(' at ');
         const gameObj = {};
@@ -53,6 +73,8 @@ const handler = async week => {
         });
         lastWeekGames.push(gameObj);
     }
+    client.release();
+    pool.end();
     return { games, lastWeekGames };
 };
 

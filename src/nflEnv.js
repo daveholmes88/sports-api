@@ -899,6 +899,14 @@ const checkHomeField = game => {
     return homeFieldAdvantage[home.replaceAll(' ', '')];
 };
 
+const threeOfFour = (game) => {
+    let spread = 0
+    if (game.allAway) {
+        spread = 2
+    }
+    return spread;
+};
+
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
@@ -937,6 +945,8 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     spread += timeZone;
     const playoffRematch = playoffCheck(awayTeam, homeTeam);
     spread += playoffRematch;
+    const threeOfFourAway = threeOfFour(game);
+    spread += threeOfFourAway;
     spread = spread / 5;
     envFactors.push([
         home.team,
@@ -956,6 +966,7 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
         bye,
         blowouts,
         backToBackAway,
+        threeOfFourAway,
         rounding(spread),
     ]);
     return spread;
