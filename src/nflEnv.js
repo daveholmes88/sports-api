@@ -799,39 +799,41 @@ const overtimeCheck = (awayTeam, homeTeam) => {
 const timeZoneCheck = game => {
     const { away, home, date } = game;
     let impact = 0;
-    const hour = parseInt(date.split(' at ')[1].split(':')[0]);
-    if (hour === 1) {
-        if (pacific.find(team => team === away)) {
-            impact += 2;
+    if (date !== 'Final') {
+        const hour = parseInt(date.split(' at ')[1].split(':')[0]);
+        if (hour === 1) {
+            if (pacific.find(team => team === away)) {
+                impact += 2;
+            }
+            if (mountain.find(team => team === away)) {
+                impact += 1;
+            }
+            if (pacific.find(team => team === home)) {
+                impact -= 2;
+            }
+            if (mountain.find(team => team === home)) {
+                impact -= 1;
+            }
         }
-        if (mountain.find(team => team === away)) {
-            impact += 1;
-        }
-        if (pacific.find(team => team === home)) {
-            impact -= 2;
-        }
-        if (mountain.find(team => team === home)) {
-            impact -= 1;
-        }
-    }
-    if (hour > 6) {
-        if (eastern.find(team => team === away)) {
-            impact += 6;
-        }
-        if (central.find(team => team === away)) {
-            impact += 3;
-        }
-        if (mountain.find(team => team === away)) {
-            impact += 1;
-        }
-        if (eastern.find(team => team === home)) {
-            impact -= 6;
-        }
-        if (central.find(team => team === home)) {
-            impact -= 3;
-        }
-        if (mountain.find(team => team === home)) {
-            impact -= 1;
+        if (hour > 6) {
+            if (eastern.find(team => team === away)) {
+                impact += 6;
+            }
+            if (central.find(team => team === away)) {
+                impact += 3;
+            }
+            if (mountain.find(team => team === away)) {
+                impact += 1;
+            }
+            if (eastern.find(team => team === home)) {
+                impact -= 6;
+            }
+            if (central.find(team => team === home)) {
+                impact -= 3;
+            }
+            if (mountain.find(team => team === home)) {
+                impact -= 1;
+            }
         }
     }
     return impact;
