@@ -46,10 +46,15 @@ const handler = async week => {
     });
     const client = await pool.connect();
     for (let game of games) {
-        const sql = "SELECT * FROM nfl_games WHERE away_team = $1";
+        const sql = 'SELECT * FROM nfl_games WHERE away_team = $1';
         const allAwayGames = await client.query(sql, [game.away]);
-        const recent = allAwayGames.rows.filter(g => g.week === week-1 || g.week === week-2 || g.week === week-3)
-        if (recent.length > 1) game.allAway = true
+        const recent = allAwayGames.rows.filter(
+            g =>
+                g.week === week - 1 ||
+                g.week === week - 2 ||
+                g.week === week - 3
+        );
+        if (recent.length > 1) game.allAway = true;
     }
     const jsonLastWeek = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=${
