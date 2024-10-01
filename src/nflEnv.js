@@ -929,7 +929,7 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     spread += backToBackAway;
     const nightGame = checkNightGames(game);
     spread += nightGame;
-    const superBowl = superBowlCheck(awayTeam, homeTeam);
+    const superBowl = superBowlCheck(awayTeam, homeTeam, week);
     spread += superBowl;
     const longDistance = checkLongDistance(awayTeam, homeTeam);
     spread += longDistance;
