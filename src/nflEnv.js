@@ -901,10 +901,10 @@ const checkHomeField = game => {
     return homeFieldAdvantage[home.replaceAll(' ', '')];
 };
 
-const threeOfFour = (game) => {
-    let spread = 0
+const threeOfFour = game => {
+    let spread = 0;
     if (game.allAway) {
-        spread = 2
+        spread = 2;
     }
     return spread;
 };
