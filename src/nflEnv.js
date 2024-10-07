@@ -655,13 +655,13 @@ const byeLastWeek = (home, away, week) => {
     const byeLastWeek = bye[week - 1];
     if (byeLastWeek) {
         if (byeLastWeek.find(team => team === home.team)) {
-            const { ranking } = home;
+            const ranking = home.ffp_power;
             if (ranking < -2) impact += 4;
             if (ranking >= -2 && ranking < 2) impact += 5;
             if (ranking >= 2) impact += 7;
         }
         if (byeLastWeek.find(team => team === away.team)) {
-            const { ranking } = away;
+            const ranking = away.ffp_power;
             if (ranking < -2) impact -= 5;
             if (ranking >= -2 && ranking < 2) impact -= 6;
             if (ranking >= 2) impact -= 8;
