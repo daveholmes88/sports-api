@@ -182,6 +182,7 @@ const bye = {
         'Washington Commanders',
     ],
 };
+
 const longDistance = {
     SeattleSeahawks: [
         'Detroit Lions',
@@ -608,7 +609,8 @@ const playoffs = {
     SanFrancisco49ers: 'Kansas City Chiefs',
 };
 
-const sameDivision = (away, home) => {
+const sameDivision = (away, home, neutral) => {
+    if (neutral) return 0
     if (
         divisions[away.replaceAll(' ', '')] ===
         divisions[home.replaceAll(' ', '')]
@@ -617,7 +619,8 @@ const sameDivision = (away, home) => {
     return 0;
 };
 
-const differentConference = (away, home) => {
+const differentConference = (away, home, neutral) => {
+    if (neutral) return 0
     if (
         conferences[away.replaceAll(' ', '')] !==
         conferences[home.replaceAll(' ', '')]
@@ -705,7 +708,8 @@ const superBowlCheck = (away, home, week) => {
     return impact;
 };
 
-const checkLongDistance = (away, home) => {
+const checkLongDistance = (away, home, neutral) => {
+    if (neutral) return 0
     if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1;
     return 0;
 };
@@ -734,7 +738,8 @@ const noDistance = [
     ['Washington Commanders', 'Baltimore Ravens'],
 ];
 
-const checkShortDistance = (away, home) => {
+const checkShortDistance = (away, home, neutral) => {
+    if (neutral) return 0
     const awayIncluded = shortDistances.find(a => a.includes(away));
     if (awayIncluded) {
         if (awayIncluded.includes(home)) return -1;
@@ -742,7 +747,8 @@ const checkShortDistance = (away, home) => {
     return 0;
 };
 
-const checkNoDistance = (away, home) => {
+const checkNoDistance = (away, home, neutral) => {
+    if (neutral) return 0
     const awayIncluded = noDistance.find(a => a.includes(away));
     if (awayIncluded) {
         if (awayIncluded.includes(home)) return -1;
@@ -799,7 +805,8 @@ const overtimeCheck = (awayTeam, homeTeam) => {
 };
 
 const timeZoneCheck = game => {
-    const { away, home, date } = game;
+    const { away, home, date, neutral } = game;
+    if (neutral) return 0;
     let impact = 0;
     if (date !== 'Final') {
         const hour = parseInt(date.split(' at ')[1].split(':')[0]);
@@ -904,6 +911,7 @@ const checkHomeField = game => {
 };
 
 const threeOfFour = game => {
+    if (game.neutral) return 0; 
     let spread = 0;
     if (game.allAway) {
         spread = 2;
@@ -914,14 +922,15 @@ const threeOfFour = game => {
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
+    const { neutral } = game
     const awayTeam = game.away;
     const homeTeam = game.home;
     let spread = 0;
     const homeField = checkHomeField(game);
     spread += homeField;
-    const division = sameDivision(awayTeam, homeTeam);
+    const division = sameDivision(awayTeam, homeTeam, neutral);
     spread += division;
-    const conference = differentConference(awayTeam, homeTeam);
+    const conference = differentConference(awayTeam, homeTeam, neutral);
     spread += conference;
     const bye = byeLastWeek(home, away, week);
     spread += bye;
@@ -933,9 +942,9 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     spread += nightGame;
     const superBowl = superBowlCheck(awayTeam, homeTeam, week);
     spread += superBowl;
-    const longDistance = checkLongDistance(awayTeam, homeTeam);
+    const longDistance = checkLongDistance(awayTeam, homeTeam, neutral);
     spread += longDistance;
-    const shortDistance = checkShortDistance(awayTeam, homeTeam);
+    const shortDistance = checkShortDistance(awayTeam, homeTeam, neutral);
     spread += shortDistance;
     const noDistance = checkNoDistance(awayTeam, homeTeam);
     spread += noDistance;
