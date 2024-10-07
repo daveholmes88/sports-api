@@ -590,7 +590,7 @@ const eastern = [
     'Washington Commanders',
 ];
 
-const overtimeLastWeek = [{ away: '', home: '' }];
+const overtimeLastWeek = [{ away: 'Baltimore Ravens', home: 'Cincinnati Bengals' }, { away: 'New Orleans Saints', home: 'Atlanta Falcons'}];
 
 const playoffs = {
     HoustonTexans: 'Baltimore Ravens',
@@ -629,14 +629,16 @@ const differentConference = (away, home) => {
 const checkBlowouts = (away, home, lastWeekGames, week) => {
     let impact = 0;
     if (week === 1) return 0;
-    ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away);
-    const awayMargin =
+    const ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away);
+    const hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home);
+    let awayMargin = 0
+    let homeMargin = 0
+    if (ag) awayMargin =
         ag.homeTeam === away
             ? ag.homeScore - ag.awayScore
             : ag.awayScore - ag.homeScore;
-    hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home);
-    const homeMargin =
-        hg.homeTeam === away
+    if (hg) homeMargin =
+        hg.homeTeam === home
             ? hg.homeScore - hg.awayScore
             : hg.awayScore - hg.homeScore;
     if (awayMargin < -16) impact -= 2;
