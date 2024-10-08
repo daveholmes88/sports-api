@@ -24,6 +24,10 @@ const handler = async week => {
     const dates = Object.keys(schedule);
     dates.forEach(date => {
         schedule[date].games.forEach(game => {
+            const homeRecord =
+                game.competitions[0].competitors[0].records[0].summary;
+            const awayRecord =
+                game.competitions[0].competitors[1].records[0].summary;
             let odds = 'n/a';
             let abs = 'n/a';
             if (game.competitions[0]?.odds) {
@@ -41,6 +45,8 @@ const handler = async week => {
                 neutral: game.competitions[0].neutralSite,
                 espnOdds: odds,
                 abbreviation: abs,
+                homeRecord,
+                awayRecord,
             });
         });
     });

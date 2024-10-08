@@ -7,8 +7,7 @@ const nflGames = require('./nflGames');
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-// const WEEK = process.env.WEEK;
-const WEEK = 6
+const WEEK = process.env.WEEK;
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -214,7 +213,7 @@ const handler = async () => {
     });
     fs.writeFile(`./csv/nflModelWeek${WEEK}.csv`, csvFromGames, err => {
         if (err) console.log(err);
-        else console.log('csv file written');
+        else console.log('model csv file written');
     });
     header = [
         'Home Team',
@@ -235,6 +234,7 @@ const handler = async () => {
         'Last Week Blowout Factor',
         'Back to Back Away',
         'Three Of Four Away',
+        'Worse Record',
         'Environmental Factors',
     ];
     const csvEnvFactors = convertArrayToCSV(envFactors, {
@@ -243,7 +243,7 @@ const handler = async () => {
     });
     fs.writeFile(`./csv/envFactorsWeek${WEEK}.csv`, csvEnvFactors, err => {
         if (err) console.log(err);
-        else console.log('csv file written');
+        else console.log('env csv file written');
     });
 };
 

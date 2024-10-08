@@ -591,7 +591,10 @@ const eastern = [
     'Washington Commanders',
 ];
 
-const overtimeLastWeek = [{ away: 'Baltimore Ravens', home: 'Cincinnati Bengals' }, { away: 'New Orleans Saints', home: 'Atlanta Falcons'}];
+const overtimeLastWeek = [
+    { away: 'Baltimore Ravens', home: 'Cincinnati Bengals' },
+    { away: 'New Orleans Saints', home: 'Atlanta Falcons' },
+];
 
 const playoffs = {
     HoustonTexans: 'Baltimore Ravens',
@@ -610,7 +613,7 @@ const playoffs = {
 };
 
 const sameDivision = (away, home, neutral) => {
-    if (neutral) return 0
+    if (neutral) return 0;
     if (
         divisions[away.replaceAll(' ', '')] ===
         divisions[home.replaceAll(' ', '')]
@@ -620,7 +623,7 @@ const sameDivision = (away, home, neutral) => {
 };
 
 const differentConference = (away, home, neutral) => {
-    if (neutral) return 0
+    if (neutral) return 0;
     if (
         conferences[away.replaceAll(' ', '')] !==
         conferences[home.replaceAll(' ', '')]
@@ -632,18 +635,24 @@ const differentConference = (away, home, neutral) => {
 const checkBlowouts = (away, home, lastWeekGames, week) => {
     let impact = 0;
     if (week === 1) return 0;
-    const ag = lastWeekGames.find(g => g.homeTeam === away || g.awayTeam === away);
-    const hg = lastWeekGames.find(g => g.homeTeam === home || g.awayTeam === home);
-    let awayMargin = 0
-    let homeMargin = 0
-    if (ag) awayMargin =
-        ag.homeTeam === away
-            ? ag.homeScore - ag.awayScore
-            : ag.awayScore - ag.homeScore;
-    if (hg) homeMargin =
-        hg.homeTeam === home
-            ? hg.homeScore - hg.awayScore
-            : hg.awayScore - hg.homeScore;
+    const ag = lastWeekGames.find(
+        g => g.homeTeam === away || g.awayTeam === away
+    );
+    const hg = lastWeekGames.find(
+        g => g.homeTeam === home || g.awayTeam === home
+    );
+    let awayMargin = 0;
+    let homeMargin = 0;
+    if (ag)
+        awayMargin =
+            ag.homeTeam === away
+                ? ag.homeScore - ag.awayScore
+                : ag.awayScore - ag.homeScore;
+    if (hg)
+        homeMargin =
+            hg.homeTeam === home
+                ? hg.homeScore - hg.awayScore
+                : hg.awayScore - hg.homeScore;
     if (awayMargin < -16) impact -= 2;
     if (awayMargin < -23) impact -= 2;
     if (awayMargin < -27) impact -= 2;
@@ -709,7 +718,7 @@ const superBowlCheck = (away, home, week) => {
 };
 
 const checkLongDistance = (away, home, neutral) => {
-    if (neutral) return 0
+    if (neutral) return 0;
     if (longDistance[away.replaceAll(' ', '')].find(t => t === home)) return 1;
     return 0;
 };
@@ -739,7 +748,7 @@ const noDistance = [
 ];
 
 const checkShortDistance = (away, home, neutral) => {
-    if (neutral) return 0
+    if (neutral) return 0;
     const awayIncluded = shortDistances.find(a => a.includes(away));
     if (awayIncluded) {
         if (awayIncluded.includes(home)) return -1;
@@ -748,7 +757,7 @@ const checkShortDistance = (away, home, neutral) => {
 };
 
 const checkNoDistance = (away, home, neutral) => {
-    if (neutral) return 0
+    if (neutral) return 0;
     const awayIncluded = noDistance.find(a => a.includes(away));
     if (awayIncluded) {
         if (awayIncluded.includes(home)) return -1;
@@ -911,7 +920,7 @@ const checkHomeField = game => {
 };
 
 const threeOfFour = game => {
-    if (game.neutral) return 0; 
+    if (game.neutral) return 0;
     let spread = 0;
     if (game.allAway) {
         spread = 2;
@@ -919,10 +928,28 @@ const threeOfFour = game => {
     return spread;
 };
 
+const worseRecord = (game, home, away) => {
+    const { homeRecord, awayRecord } = game;
+    if (
+        conferences[game.away.replaceAll(' ', '')] !==
+        conferences[game.home.replaceAll(' ', '')]
+    )
+        return 0;
+    const homeWins = parseInt(homeRecord.split('-'));
+    const awayWins = parseInt(awayRecord.split('-'));
+    if (homeWins > awayWins) {
+        if (away.espn_api > 1) return -5;
+    }
+    if (awayWins > homeWins) {
+        if (home.espn_api > 1) return 5;
+    }
+    return 0;
+};
+
 const rounding = num => Math.round(num * 100) / 100;
 
 const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
-    const { neutral } = game
+    const { neutral } = game;
     const awayTeam = game.away;
     const homeTeam = game.home;
     let spread = 0;
@@ -960,6 +987,8 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     spread += playoffRematch;
     const threeOfFourAway = threeOfFour(game);
     spread += threeOfFourAway;
+    const record = worseRecord(game, home, away);
+    spread += record;
     spread = spread / 5;
     envFactors.push([
         homeTeam,
@@ -980,6 +1009,7 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
         blowouts,
         backToBackAway,
         threeOfFourAway,
+        record,
         rounding(spread),
     ]);
     return spread;

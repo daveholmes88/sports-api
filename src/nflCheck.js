@@ -4,12 +4,12 @@ require('dotenv').config();
 
 // coaches 2024
 // const good = [
-//     'Kansas City Chiefs', 
-//     'Los Angeles Rams', 
-//     'Baltimore Ravens', 
-//     'Detroit Lions', 
-//     'San Francisco 49ers', 
-//     'Green Bay Packers', 
+//     'Kansas City Chiefs',
+//     'Los Angeles Rams',
+//     'Baltimore Ravens',
+//     'Detroit Lions',
+//     'San Francisco 49ers',
+//     'Green Bay Packers',
 //     'Pittsburgh Steelers',
 //     'Minnesota Vikings',
 //     'Denver Broncos'
@@ -25,7 +25,6 @@ require('dotenv').config();
 //     'Cleveland Browns',
 //     'Carolina Panthers',
 // ]
-
 
 // const handler = async () => {
 //     let week = process.env.WEEK - 1;
@@ -87,13 +86,29 @@ require('dotenv').config();
 // const nfc = ['Seattle Seahawks', 'Minnesota Vikings', 'New York Giants', 'Dallas Cowboys', 'Philadelphia Eagles', 'Tampa Bay Buccaneers', 'San Francisco 49ers']
 
 // playoffs 2021
-const afc = ['Cincinnati Bengals', 'Tennessee Titans', 'Buffalo Bills', 'Kansas City Chiefs', 'Oakland Raiders', 'Pittsburgh Steelers', 'New England Patriots']
+const afc = [
+    'Cincinnati Bengals',
+    'Tennessee Titans',
+    'Buffalo Bills',
+    'Kansas City Chiefs',
+    'Oakland Raiders',
+    'Pittsburgh Steelers',
+    'New England Patriots',
+];
 
-const nfc = ['Philadelphia Eagles', 'Tampa Bay Buccaneers', 'San Francisco 49ers', 'Dallas Cowboys', 'Arizona Cardinals', 'Los Angeles Rams', 'Green Bay Packers', ]
+const nfc = [
+    'Philadelphia Eagles',
+    'Tampa Bay Buccaneers',
+    'San Francisco 49ers',
+    'Dallas Cowboys',
+    'Arizona Cardinals',
+    'Los Angeles Rams',
+    'Green Bay Packers',
+];
 const playoffs = async () => {
     let week = 18;
     // let week = 1
-    const check = []
+    const check = [];
     while (week > 0) {
         const jsonWeek = await fetch(
             `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2021&seasontype=2&week=${week}`
@@ -103,19 +118,23 @@ const playoffs = async () => {
         const dates = Object.keys(schedule);
         for (let date of dates) {
             for (let game of schedule[date].games) {
-                const id = game.id
-                const away = game.competitions[0].competitors.find(g => g.homeAway === 'away');
-                const home = game.competitions[0].competitors.find(g => g.homeAway === 'home');
+                const id = game.id;
+                const away = game.competitions[0].competitors.find(
+                    g => g.homeAway === 'away'
+                );
+                const home = game.competitions[0].competitors.find(
+                    g => g.homeAway === 'home'
+                );
                 const awayTeam = away.team.displayName;
                 const homeTeam = home.team.displayName;
                 let homeRecord = home.records[0].summary;
                 let awayRecord = away.records[0].summary;
                 const awayScore = parseInt(away.score);
                 const homeScore = parseInt(home.score);
-                const teamOneAfc = afc.find(t => t === homeTeam)
-                const teamTwoAfc = afc.find(t => t === awayTeam)
-                const teamOneNfc = nfc.find(t => t === awayTeam)
-                const teamTwoNfc = nfc.find(t => t === homeTeam)
+                const teamOneAfc = afc.find(t => t === homeTeam);
+                const teamTwoAfc = afc.find(t => t === awayTeam);
+                const teamOneNfc = nfc.find(t => t === awayTeam);
+                const teamTwoNfc = nfc.find(t => t === homeTeam);
                 if ((teamOneAfc && teamTwoAfc) || (teamOneNfc && teamTwoNfc)) {
                     if (homeScore > awayScore) {
                         let homeArray = homeRecord.split('-');
@@ -123,7 +142,7 @@ const playoffs = async () => {
                         homeRecord = homeArray.join(', ');
                         const awayArray = awayRecord.split('-');
                         awayArray[1] = parseInt(awayArray[1]) - 1;
-                        awayRecord = awayArray.join(', ')
+                        awayRecord = awayArray.join(', ');
                     }
                     if (awayScore > homeScore) {
                         let homeArray = homeRecord.split('-');
@@ -131,21 +150,39 @@ const playoffs = async () => {
                         homeRecord = homeArray.join(', ');
                         const awayArray = awayRecord.split('-');
                         awayArray[0] = parseInt(awayArray[0]) - 1;
-                        awayRecord = awayArray.join(', ')
+                        awayRecord = awayArray.join(', ');
                     }
-                    const jsonGame = await fetch(`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${id}/competitions/${id}/odds`)
-                    const game = await jsonGame.json()
-                    const odds = game?.items.pop().details || 'n/a'
+                    const jsonGame = await fetch(
+                        `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${id}/competitions/${id}/odds`
+                    );
+                    const game = await jsonGame.json();
+                    const odds = game?.items.pop().details || 'n/a';
                     if (homeRecord !== awayRecord) {
-                        check.push([homeTeam, homeScore, homeRecord, awayTeam, awayScore, awayRecord, odds])
+                        check.push([
+                            homeTeam,
+                            homeScore,
+                            homeRecord,
+                            awayTeam,
+                            awayScore,
+                            awayRecord,
+                            odds,
+                        ]);
                     }
                 }
             }
         }
-        week --
+        week--;
     }
-    const header = ['Home', 'Home Score', 'Home Record', 'Away', 'Away Score', 'Away Record', 'Odds']
-    console.log(check)
+    const header = [
+        'Home',
+        'Home Score',
+        'Home Record',
+        'Away',
+        'Away Score',
+        'Away Record',
+        'Odds',
+    ];
+    console.log(check);
     const csvCheck = convertArrayToCSV(check, {
         header,
         separator: ',',
@@ -154,6 +191,6 @@ const playoffs = async () => {
         if (err) console.log(err);
         else console.log('csv file written');
     });
-}
+};
 
-playoffs()
+playoffs();
