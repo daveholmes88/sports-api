@@ -938,10 +938,10 @@ const worseRecord = (game, home, away) => {
     const homeWins = parseInt(homeRecord.split('-'));
     const awayWins = parseInt(awayRecord.split('-'));
     if (homeWins > awayWins) {
-        if (away.espn_api > 1) return -5;
+        if (away.espn_api > 1.5) return -5;
     }
     if (awayWins > homeWins) {
-        if (home.espn_api > 1) return 5;
+        if (home.espn_api > 1.5) return 5;
     }
     return 0;
 };
