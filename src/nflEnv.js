@@ -592,8 +592,7 @@ const eastern = [
 ];
 
 const overtimeLastWeek = [
-    { away: 'Baltimore Ravens', home: 'Cincinnati Bengals' },
-    { away: 'New Orleans Saints', home: 'Atlanta Falcons' },
+    { away: '', home: '' },
 ];
 
 const playoffs = {
