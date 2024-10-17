@@ -1,3 +1,7 @@
+const fs = require('fs');
+const { convertArrayToCSV } = require('convert-array-to-csv');
+require('dotenv').config();
+
 const rename = {
     SF: 'San Francisco 49ers',
     KC: 'Kansas City Chiefs',
@@ -34,11 +38,11 @@ const rename = {
 };
 
 const streaks = async () => {
-    let week = 5
+    let week = 18
     const winners = {}
     while (week > 0) {
     const jsonWeek = await fetch(
-        `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2024&seasontype=2&week=${week}`
+        `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2023&seasontype=2&week=${week}`
     );
     const weekData = await jsonWeek.json();
     const schedule = weekData.content.schedule;
@@ -68,26 +72,26 @@ const streaks = async () => {
                 const number = parseInt(oddsArray[1]) * -1
                 if (favorite === homeTeam){
                     if ((homeScore - awayScore) > number) {
-                        winners[week][homeTeam] = true
-                        winners[week][awayTeam] = false
+                        winners[week][homeTeam] = 'w'
+                        winners[week][awayTeam] = 'l'
                     } else if (homeScore - awayScore === number) {
                         winners[week][homeTeam] = 'push'
                         winners[week][awayTeam] = 'push'
                     } else {
-                        winners[week][homeTeam] = false
-                        winners[week][awayTeam] = true
+                        winners[week][homeTeam] = 'l'
+                        winners[week][awayTeam] = 'w'
                     }
                 }
                 if (favorite === awayTeam) {
                     if ((awayScore - homeScore) > number) {
-                        winners[week][awayTeam] = true
-                        winners[week][homeTeam] = false
+                        winners[week][awayTeam] = 'w'
+                        winners[week][homeTeam] = 'l'
                     } else if (awayScore - homeScore === number) {
                         winners[week][homeTeam] = 'push'
                         winners[week][awayTeam] = 'push'
                     } else {
-                        winners[week][awayTeam] = false
-                        winners[week][homeTeam] = true
+                        winners[week][awayTeam] = 'l'
+                        winners[week][homeTeam] = 'w'
                     }
                 }
             }
@@ -95,6 +99,53 @@ const streaks = async () => {
     }
     week --
     }
+    const streakArray = []
+    const teams = Object.keys(winners['1'])
+    teams.forEach(team => {
+        let streak = 0
+        for (let w = 1; w < 19; w++) {
+            if (winners[w][team] === 'w') {
+                streak += 1
+            } else if (winners[w][team] === 'push' || !winners[w][team]) {
+                streak += 0
+            } else {
+                streak = 0
+            }
+            if (streak > 2) {
+                if (w < 18) {
+                    check = w + 1
+                    const result = winners[check][team]
+                    streakArray.push(['winning', team, check, result])
+                }
+            }
+        }
+        streak = 0
+        for (let w = 1; w < 19; w++) {
+            if (winners[w][team] === 'l') {
+                streak += 1
+            } else if (winners[w][team] === 'push' || !winners[w][team]) {
+                streak += 0
+            } else {
+                streak = 0
+            }
+            if (streak > 2) {
+                if (w < 18) {
+                    check = w + 1
+                    const result = winners[check][team]
+                    streakArray.push(['losing', team, check, result])
+                }
+            }
+        }
+    })
+    const header = ['Type', 'Team', 'Week', 'Result']
+    const csvCheck = convertArrayToCSV(streakArray, {
+        header,
+        separator: ',',
+    });
+    fs.writeFile(`./csv/streak.csv`, csvCheck, err => {
+        if (err) console.log(err);
+        else console.log('csv file written');
+    });
 }
 
 streaks()
