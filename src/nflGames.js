@@ -50,75 +50,75 @@ const rename = {
 };
 
 const streakCheck = (team, game, winners, week, type) => {
-    let streak = 0
-    for (let w = week-1; w > week-5; w--) {
+    let streak = 0;
+    for (let w = week - 1; w > week - 5; w--) {
         // console.log(team)
         // console.log(w)
         // console.log(winners[w][team])
         if (winners[w][team] === 'w') {
-            streak += 1
+            streak += 1;
         } else if (winners[w][team] === 'push' || !winners[w][team]) {
-            streak += 0
+            streak += 0;
         } else {
-            break
+            break;
         }
         if (streak > 2) {
-            game[type+'Streak'] = 'winning'        
+            game[type + 'Streak'] = 'winning';
         }
     }
-    streak = 0
-    for (let w = week-1; w > week-5; w--) {
+    streak = 0;
+    for (let w = week - 1; w > week - 5; w--) {
         if (winners[w][team] === 'l') {
-            streak += 1
+            streak += 1;
         } else if (winners[w][team] === 'push' || !winners[w][team]) {
-            streak += 0
+            streak += 0;
         } else {
-            break
+            break;
         }
         if (streak > 2) {
-            game[type+'Streak'] = 'losing'
+            game[type + 'Streak'] = 'losing';
         }
     }
-}
+};
 
 const getPreviousData = async (winners, g) => {
-    const { id, home_team, away_team, home_score, away_score, week } = g
-    if (!winners[week]) winners[week] = {}
+    const { id, home_team, away_team, home_score, away_score, week } = g;
+    if (!winners[week]) winners[week] = {};
     const jsonGame = await fetch(
         `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${id}/competitions/${id}/odds`
     );
     const gameData = await jsonGame.json();
     const odds = gameData?.items[0].details || 'n/a';
     if (odds !== 'n/a') {
-        const oddsArray = odds.split(' ')
-        const favorite = rename[oddsArray[0]]
-        const number = parseInt(oddsArray[1]) * -1
-        if (favorite === home_team){
-            if ((home_score - away_score) > number) {
-                winners[week][home_team] = 'w'
-                winners[week][away_team] = 'l'
+        const oddsArray = odds.split(' ');
+        const favorite = rename[oddsArray[0]];
+        const number = parseInt(oddsArray[1]) * -1;
+        if (favorite === home_team) {
+            if (home_score - away_score > number) {
+                winners[week][home_team] = 'w';
+                winners[week][away_team] = 'l';
             } else if (home_score - away_score === number) {
-                winners[week][home_team] = 'push'
-                winners[week][away_team] = 'push'
+                winners[week][home_team] = 'push';
+                winners[week][away_team] = 'push';
             } else {
-                winners[week][home_team] = 'l'
-                winners[week][away_team] = 'w'
+                winners[week][home_team] = 'l';
+                winners[week][away_team] = 'w';
             }
         }
         if (favorite === away_team) {
-            if ((away_score - home_score) > number) {
-                winners[week][away_team] = 'w'
-                winners[week][home_team] = 'l'
+            if (away_score - home_score > number) {
+                winners[week][away_team] = 'w';
+                winners[week][home_team] = 'l';
             } else if (away_score - home_score === number) {
-                winners[week][home_team] = 'push'
-                winners[week][away_team] = 'push'
+                winners[week][home_team] = 'push';
+                winners[week][away_team] = 'push';
             } else {
-                winners[week][away_team] = 'l'
-                winners[week][home_team] = 'w'
+                winners[week][away_team] = 'l';
+                winners[week][home_team] = 'w';
             }
         }
     }
-}
+};
 
 const handler = async week => {
     const games = [];
@@ -176,7 +176,7 @@ const handler = async week => {
     const lastWeekData = await jsonLastWeek.json();
     const lastWeekGames = [];
     for (const game of lastWeekData.events) {
-        const id = game.id
+        const id = game.id;
         const gameArray = game.name.split(' at ');
         const gameObj = {};
         gameObj['homeTeam'] = gameArray[1];
@@ -191,25 +191,25 @@ const handler = async week => {
         });
         lastWeekGames.push(gameObj);
     }
-    const winners = {}
+    const winners = {};
     for (let game of games) {
-        const sql = 'SELECT * FROM nfl_games WHERE home_team = $1 OR away_team = $1';
+        const sql =
+            'SELECT * FROM nfl_games WHERE home_team = $1 OR away_team = $1';
         const allAwayGames = await client.query(sql, [game.away]);
-        let checks = allAwayGames.rows.filter(g => g.week > (week-5))
+        let checks = allAwayGames.rows.filter(g => g.week > week - 5);
         for (let g of checks) {
-            await getPreviousData(winners, g)
+            await getPreviousData(winners, g);
         }
-        const allHomeGames = await client.query(sql, [game.home]); 
-        checks = allHomeGames.rows.filter(g => g.week > (week-5))
+        const allHomeGames = await client.query(sql, [game.home]);
+        checks = allHomeGames.rows.filter(g => g.week > week - 5);
         for (let g of checks) {
-            await getPreviousData(winners, g)
+            await getPreviousData(winners, g);
         }
     }
-    console.log(winners[6])
     for (let game of games) {
-        const { home, away } = game
-        streakCheck(home, game, winners, week, 'home')
-        streakCheck(away, game, winners, week, 'away')
+        const { home, away } = game;
+        streakCheck(home, game, winners, week, 'home');
+        streakCheck(away, game, winners, week, 'away');
     }
     client.release();
     pool.end();

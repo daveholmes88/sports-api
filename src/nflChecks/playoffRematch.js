@@ -21,19 +21,19 @@ require('dotenv').config();
 
 // 2022
 // const playoffs = {
-//     LosAngelesChargers: 'Jacksonville Jaguars', 
+//     LosAngelesChargers: 'Jacksonville Jaguars',
 //     BaltimoreRavens: 'Cincinnati Bengals',
-//     BuffaloBills: 'Kansas City Chiefs', 
-//     CincinnatiBengals: 'Buffalo Bills', 
-//     MiamiDolphins: 'Buffalo Bills', 
+//     BuffaloBills: 'Kansas City Chiefs',
+//     CincinnatiBengals: 'Buffalo Bills',
+//     MiamiDolphins: 'Buffalo Bills',
 //     JacksonvilleJaguars: 'Kansas City Chiefs',
-//     SeattleSeahawks: 'San Francisco 49ers', 
-//     MinnesotaVikings: 'New York Giants', 
-//     NewYorkGiants: 'Philadelphia Eagles', 
-//     DallasCowboys: 'San Francisco 49ers', 
-//     PhiladelphiaEagles: 'Kansas City Chiefs', 
-//     TampaBayBuccaneers: 'Dallas Cowboys', 
-//     SanFrancisco49ers: 'Philadelphia Eagles'  
+//     SeattleSeahawks: 'San Francisco 49ers',
+//     MinnesotaVikings: 'New York Giants',
+//     NewYorkGiants: 'Philadelphia Eagles',
+//     DallasCowboys: 'San Francisco 49ers',
+//     PhiladelphiaEagles: 'Kansas City Chiefs',
+//     TampaBayBuccaneers: 'Dallas Cowboys',
+//     SanFrancisco49ers: 'Philadelphia Eagles'
 // }
 
 // 2021
@@ -55,20 +55,20 @@ require('dotenv').config();
 
 // 2020
 const playoffs = {
-    TennesseeTitans: 'Baltimore Ravens', 
+    TennesseeTitans: 'Baltimore Ravens',
     IndianapolisColts: 'Buffalo Bills',
     PittsburghSteelers: 'Cleveland Browns',
     BaltimoreRavens: 'Buffalo Bills',
-    ClevelandBrowns: 'Kansas City Chiefs', 
-    BuffaloBills: 'Kansas City Chiefs', 
+    ClevelandBrowns: 'Kansas City Chiefs',
+    BuffaloBills: 'Kansas City Chiefs',
     KansasCityChiefs: 'Tampa Bay Buccaneers',
-    WashingtonCommanders: 'Tampa Bay Buccaneers', 
-    ChicagoBears: 'New Orleans Saints', 
-    SeattleSeahawks: 'Los Angeles Rams', 
+    WashingtonCommanders: 'Tampa Bay Buccaneers',
+    ChicagoBears: 'New Orleans Saints',
+    SeattleSeahawks: 'Los Angeles Rams',
     NewOrleansSaints: 'Tampa Bay Buccaneers',
-    LosAngelesRams: 'Green Bay Packers', 
-    GreenBayPackers: 'Tampa Bay Buccaneers'
-}
+    LosAngelesRams: 'Green Bay Packers',
+    GreenBayPackers: 'Tampa Bay Buccaneers',
+};
 
 const rematch = async () => {
     let week = 18;
@@ -90,22 +90,22 @@ const rematch = async () => {
                 const home = game.competitions[0].competitors.find(
                     g => g.homeAway === 'home'
                 );
-                const homeName = home.team.displayName
-                const awayName = away.team.displayName
-                let revenge 
-                let winner
+                const homeName = home.team.displayName;
+                const awayName = away.team.displayName;
+                let revenge;
+                let winner;
                 if (playoffs[awayName.replaceAll(' ', '')] === homeName) {
-                    revenge = away
+                    revenge = away;
 
-                    winner = home
+                    winner = home;
                 }
                 if (playoffs[homeName.replaceAll(' ', '')] === awayName) {
-                    revenge = home
-                    winner = away
+                    revenge = home;
+                    winner = away;
                 }
                 if (revenge) {
-                    const revengeName = revenge.team.displayName
-                    const winnerName = winner.team.displayName
+                    const revengeName = revenge.team.displayName;
+                    const winnerName = winner.team.displayName;
                     const revengeScore = parseInt(revenge.score);
                     const winnerScore = parseInt(winner.score);
                     const jsonGame = await fetch(

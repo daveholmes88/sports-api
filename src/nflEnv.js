@@ -591,9 +591,7 @@ const eastern = [
     'Washington Commanders',
 ];
 
-const overtimeLastWeek = [
-    { away: '', home: '' },
-];
+const overtimeLastWeek = [{ away: '', home: '' }];
 
 const playoffs = {
     HoustonTexans: 'Baltimore Ravens',
@@ -945,14 +943,14 @@ const worseRecord = (game, home, away) => {
     return 0;
 };
 
-const checkStreak = (game) => {
+const checkStreak = game => {
     let impact = 0;
     if (game.awayStreak === 'winning') impact += 3;
     if (game.awayStreak === 'losing') impact -= 3;
     if (game.homeStreak === 'winning') impact -= 3;
     if (game.homeStreak === 'losing') impact += 3;
     return impact;
-}
+};
 
 const rounding = num => Math.round(num * 100) / 100;
 
@@ -997,8 +995,8 @@ const handler = (game, week, lastWeekGames, away, home, envFactors = []) => {
     spread += threeOfFourAway;
     const record = worseRecord(game, home, away);
     spread += record;
-    const streak = checkStreak(game)
-    spread += streak
+    const streak = checkStreak(game);
+    spread += streak;
     spread = spread / 5;
     envFactors.push([
         homeTeam,
