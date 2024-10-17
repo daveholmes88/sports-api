@@ -235,6 +235,7 @@ const handler = async () => {
         'Back to Back Away',
         'Three Of Four Away',
         'Worse Record',
+        'Streak',
         'Environmental Factors',
     ];
     const csvEnvFactors = convertArrayToCSV(envFactors, {
