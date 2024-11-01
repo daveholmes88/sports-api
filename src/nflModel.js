@@ -45,7 +45,7 @@ const jeffData = {
     Los_Angeles_Chargers: 20.44,
     Tampa_Bay_Buccaneers: 20.01,
     Tennessee_Titans: 14.66,
-    New_Orleans_Saints: 15.00,
+    New_Orleans_Saints: 15.0,
     Washington_Commanders: 21.08,
     Las_Vegas_Raiders: 13.6,
     New_England_Patriots: 13.03,

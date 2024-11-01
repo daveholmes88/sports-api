@@ -106,22 +106,26 @@ const getYesterdayDate = date => {
     const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
-    return `${year}${month}${day}`
-}
+    return `${year}${month}${day}`;
+};
 
 const checkPlayedYesterday = (game, yesterdayGames) => {
-    const { away, home } = game
-    let impact = 0
-    const awayPlayed = yesterdayGames.find(y => y.home === away || y.away === away)
-    const homePlayed = yesterdayGames.find(y => y.home === home || y.away === home)
-    if (awayPlayed) impact = 7
-    if (homePlayed) impact = -7
-    return impact
-}
+    const { away, home } = game;
+    let impact = 0;
+    const awayPlayed = yesterdayGames.find(
+        y => y.home === away || y.away === away
+    );
+    const homePlayed = yesterdayGames.find(
+        y => y.home === home || y.away === home
+    );
+    if (awayPlayed) impact = 7;
+    if (homePlayed) impact = -7;
+    return impact;
+};
 
 const handler = async () => {
-    const d = new Date()
-    const date = d.toISOString().slice(0, 10).replace(/-/g, '')
+    const d = new Date();
+    const date = d.toISOString().slice(0, 10).replace(/-/g, '');
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM nba_teams`);
     const teams = result.rows;
@@ -132,20 +136,20 @@ const handler = async () => {
     );
     const games = await jsonGames.json();
     d.setDate(d.getDate() - 1);
-    const yesterday = getYesterdayDate(d)
+    const yesterday = getYesterdayDate(d);
     const yesterdayJsonGames = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${yesterday}`
     );
     const yesterdayGames = await yesterdayJsonGames.json();
-    const playedYesterday = []
+    const playedYesterday = [];
     if (yesterdayGames.events.length > 0) {
         yesterdayGames.events.forEach(g => {
-            const gameArray = g.name.split(' at ')
-            const home = gameArray[1]
-            const away = gameArray[0]
-            const overtime = g.competitions[0].status.period === 5 
-            playedYesterday.push({home, away, overtime})
-        })
+            const gameArray = g.name.split(' at ');
+            const home = gameArray[1];
+            const away = gameArray[0];
+            const overtime = g.competitions[0].status.period === 5;
+            playedYesterday.push({ home, away, overtime });
+        });
     }
     const todayGames = [];
     games.events.forEach(game => {
@@ -172,8 +176,8 @@ const handler = async () => {
         spread += homeField;
         const division = sameDivision(game);
         spread += division;
-        const yesterdayCheck = checkPlayedYesterday(game, playedYesterday)
-        spread += yesterdayCheck
+        const yesterdayCheck = checkPlayedYesterday(game, playedYesterday);
+        spread += yesterdayCheck;
         spread = spread / 5;
         let homeSpread = rounding(dbRating + spread) * -1;
         homeSpread = homeSpread > 0 ? `+${homeSpread}` : homeSpread;

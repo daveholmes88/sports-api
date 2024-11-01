@@ -2,17 +2,19 @@ const fs = require('fs');
 const { convertArrayToCSV } = require('convert-array-to-csv');
 require('dotenv').config();
 
-const followingTeams = async (baseTeam) => {
+const followingTeams = async baseTeam => {
     let week = 2;
-    const games = []
+    const games = [];
     while (week < 19) {
         const jsonLastWeek = await fetch(
-            `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2021&seasontype=2&week=${week-1}`
+            `https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2021&seasontype=2&week=${
+                week - 1
+            }`
         );
         const lastWeekData = await jsonLastWeek.json();
         const lastSchedule = lastWeekData.content.schedule;
         const lastDates = Object.keys(lastSchedule);
-        let team
+        let team;
         for (let date of lastDates) {
             for (let game of lastSchedule[date].games) {
                 const away = game.competitions[0].competitors.find(
@@ -53,35 +55,45 @@ const followingTeams = async (baseTeam) => {
                         );
                         const gameData = await jsonGame.json();
                         if (gameData?.items.length > 0) {
-                        const odds = gameData?.items[0].details || gameData?.items[1].details || 'n/a';
-                        console.log(odds)
-                        if (odds !== 'n/a') {
-                        if (homeTeam === team) {
-                            games.push([
-                                homeTeam,
-                                homeScore,
-                                awayTeam,
-                                awayScore,
-                                odds,
-                            ])
-                        } else {
-                            games.push([
-                                awayTeam,
-                                awayScore,
-                                homeTeam,
-                                homeScore,
-                                odds,
-                            ])
+                            const odds =
+                                gameData?.items[0].details ||
+                                gameData?.items[1].details ||
+                                'n/a';
+                            console.log(odds);
+                            if (odds !== 'n/a') {
+                                if (homeTeam === team) {
+                                    games.push([
+                                        homeTeam,
+                                        homeScore,
+                                        awayTeam,
+                                        awayScore,
+                                        odds,
+                                    ]);
+                                } else {
+                                    games.push([
+                                        awayTeam,
+                                        awayScore,
+                                        homeTeam,
+                                        homeScore,
+                                        odds,
+                                    ]);
+                                }
+                            }
                         }
-                        }
-                    }
                     }
                 }
-            }   
+            }
         }
         week++;
     }
-    const header = ['Target Team', 'Target Score', 'Other Team', 'Other Score', 'Odds', 'Result'];
+    const header = [
+        'Target Team',
+        'Target Score',
+        'Other Team',
+        'Other Score',
+        'Odds',
+        'Result',
+    ];
     const csvCheck = convertArrayToCSV(games, {
         header,
         separator: ',',

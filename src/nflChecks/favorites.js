@@ -26,16 +26,19 @@ const favorites = async () => {
                 const homeTeam = home.team.displayName;
                 const awayScore = parseInt(away.score);
                 const homeScore = parseInt(home.score);
-                console.log(id)
+                console.log(id);
                 const jsonGame = await fetch(
                     `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${id}/competitions/${id}/odds`
                 );
                 const fullGame = await jsonGame.json();
-                const odds = fullGame?.items[0].details || fullGame?.items[1].details || 'n/a';
-                console.log(odds)
-                const number = parseInt(odds.split(' ')[1])
-                const margin = homeScore - awayScore
-                const loss = margin < 10 && margin > -10 ? 'L' : '' 
+                const odds =
+                    fullGame?.items[0].details ||
+                    fullGame?.items[1].details ||
+                    'n/a';
+                console.log(odds);
+                const number = parseInt(odds.split(' ')[1]);
+                const margin = homeScore - awayScore;
+                const loss = margin < 10 && margin > -10 ? 'L' : '';
                 if (number > 9 || number < -9) {
                     check.push([
                         homeTeam,
@@ -43,20 +46,14 @@ const favorites = async () => {
                         awayTeam,
                         awayScore,
                         odds,
-                        loss
+                        loss,
                     ]);
                 }
             }
         }
         week--;
     }
-    const header = [
-        'Home',
-        'Home Score',
-        'Away',
-        'Away Score',
-        'Odds',
-    ];
+    const header = ['Home', 'Home Score', 'Away', 'Away Score', 'Odds'];
     console.log(check);
     const csvCheck = convertArrayToCSV(check, {
         header,
