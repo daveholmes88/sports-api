@@ -52,9 +52,6 @@ const rename = {
 const streakCheck = (team, game, winners, week, type) => {
     let streak = 0;
     for (let w = week - 1; w > week - 5; w--) {
-        // console.log(team)
-        // console.log(w)
-        // console.log(winners[w][team])
         if (winners[w][team] === 'w') {
             streak += 1;
         } else if (winners[w][team] === 'push' || !winners[w][team]) {
