@@ -11,7 +11,6 @@ const handler = async () => {
         const weekData = await jsonWeek.json();
         const gameIds = [];
         const schedule = weekData.content.schedule;
-        // console.log(schedule)
         const dates = Object.keys(schedule);
         dates.forEach(date => {
             schedule[date].games.forEach(game => gameIds.push(game.id));
