@@ -7,7 +7,7 @@ const nflGames = require('./nflGames');
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const WEEK = 11;
+const WEEK = 12;
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -20,38 +20,38 @@ const pool = new Pool({
 });
 
 const jeffData = {
-    San_Francisco_49ers: 24.49,
-    Buffalo_Bills: 26.73,
-    Detroit_Lions: 28.07,
-    Kansas_City_Chiefs: 25.8,
-    Houston_Texans: 22.93,
-    Baltimore_Ravens: 25.13,
-    Philadelphia_Eagles: 25.21,
-    Miami_Dolphins: 19.52,
-    Green_Bay_Packers: 24.25,
-    Cincinnati_Bengals: 21.09,
-    New_York_Jets: 19.32,
-    Los_Angeles_Rams: 20.12,
-    Dallas_Cowboys: 17.4,
-    Jacksonville_Jaguars: 18.11,
-    Pittsburgh_Steelers: 23.12,
-    Cleveland_Browns: 16.52,
-    Chicago_Bears: 18.98,
-    Seattle_Seahawks: 19.2,
-    Indianapolis_Colts: 19.69,
-    Atlanta_Falcons: 19.58,
-    Minnesota_Vikings: 23.16,
-    Arizona_Cardinals: 21.12,
-    Los_Angeles_Chargers: 21.36,
+    San_Francisco_49ers: 23.32,
+    Buffalo_Bills: 27.62,
+    Detroit_Lions: 29.96,
+    Kansas_City_Chiefs: 25.17,
+    Houston_Texans: 24.15,
+    Baltimore_Ravens: 24.91,
+    Philadelphia_Eagles: 25.63,
+    Miami_Dolphins: 20.08,
+    Green_Bay_Packers: 24.16,
+    Cincinnati_Bengals: 20.38,
+    New_York_Jets: 18.89,
+    Los_Angeles_Rams: 20.28,
+    Dallas_Cowboys: 15.72,
+    Jacksonville_Jaguars: 16.47,
+    Pittsburgh_Steelers: 23.73,
+    Cleveland_Browns: 14.56,
+    Chicago_Bears: 18.90,
+    Seattle_Seahawks: 19.72,
+    Indianapolis_Colts: 19.91,
+    Atlanta_Falcons: 17.70,
+    Minnesota_Vikings: 23.68,
+    Arizona_Cardinals: 21.68,
+    Los_Angeles_Chargers: 22.38,
     Tampa_Bay_Buccaneers: 19.72,
-    Tennessee_Titans: 14.92,
-    New_Orleans_Saints: 15.2,
-    Washington_Commanders: 20.56,
-    Las_Vegas_Raiders: 13.07,
-    New_England_Patriots: 14.41,
-    Denver_Broncos: 17.82,
-    New_York_Giants: 14.48,
-    Carolina_Panthers: 9.94,
+    Tennessee_Titans: 14.73,
+    New_Orleans_Saints: 16.05,
+    Washington_Commanders: 20.78,
+    Las_Vegas_Raiders: 12.31,
+    New_England_Patriots: 14.32,
+    Denver_Broncos: 20.05,
+    New_York_Giants: 13.26,
+    Carolina_Panthers: 9.8,
 };
 
 const rounding = num => Math.round(num * 100) / 100;
