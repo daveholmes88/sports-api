@@ -591,7 +591,7 @@ const eastern = [
     'Washington Commanders',
 ];
 
-const overtimeLastWeek = [{ away: '', home: '' }];
+const overtimeLastWeek = [{ away: 'Minnesota Vikings', home: 'Chicago Bears' }];
 
 const playoffs = {
     HoustonTexans: 'Baltimore Ravens',

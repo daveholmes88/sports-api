@@ -7,7 +7,7 @@ const nflGames = require('./nflGames');
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const WEEK = 12;
+const WEEK = 13;
 
 const pool = new Pool({
     user: 'davidholmes',

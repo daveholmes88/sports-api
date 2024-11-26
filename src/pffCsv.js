@@ -35,7 +35,7 @@ const rename = {
     CAR: 'Carolina Panthers',
 };
 
-const WEEK = process.env.WEEK;
+const WEEK = 12
 
 fs.readFile(`./csv/pff-ratings-week${WEEK}.csv`, 'utf8', (err, data) => {
     if (err) {
