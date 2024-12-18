@@ -4,10 +4,11 @@ const pkg = require('pg');
 require('dotenv').config();
 const env = require('./nflEnv');
 const nflGames = require('./nflGames');
+const { week } = require('./variables/nfl')
+
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const WEEK = 13;
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -20,38 +21,38 @@ const pool = new Pool({
 });
 
 const jeffData = {
-    San_Francisco_49ers: 23.32,
-    Buffalo_Bills: 27.62,
-    Detroit_Lions: 29.96,
-    Kansas_City_Chiefs: 25.17,
-    Houston_Texans: 24.15,
-    Baltimore_Ravens: 24.91,
-    Philadelphia_Eagles: 25.63,
-    Miami_Dolphins: 20.08,
-    Green_Bay_Packers: 24.16,
-    Cincinnati_Bengals: 20.38,
-    New_York_Jets: 18.89,
-    Los_Angeles_Rams: 20.28,
-    Dallas_Cowboys: 15.72,
-    Jacksonville_Jaguars: 16.47,
-    Pittsburgh_Steelers: 23.73,
-    Cleveland_Browns: 14.56,
-    Chicago_Bears: 18.90,
-    Seattle_Seahawks: 19.72,
-    Indianapolis_Colts: 19.91,
-    Atlanta_Falcons: 17.70,
-    Minnesota_Vikings: 23.68,
-    Arizona_Cardinals: 21.68,
-    Los_Angeles_Chargers: 22.38,
-    Tampa_Bay_Buccaneers: 19.72,
-    Tennessee_Titans: 14.73,
-    New_Orleans_Saints: 16.05,
-    Washington_Commanders: 20.78,
-    Las_Vegas_Raiders: 12.31,
-    New_England_Patriots: 14.32,
-    Denver_Broncos: 20.05,
-    New_York_Giants: 13.26,
-    Carolina_Panthers: 9.8,
+    San_Francisco_49ers: 22.24,
+    Buffalo_Bills: 27.53,
+    Detroit_Lions: 29.49,
+    Kansas_City_Chiefs: 23.48,
+    Houston_Texans: 22.75,
+    Baltimore_Ravens: 24.83,
+    Philadelphia_Eagles: 26.85,
+    Miami_Dolphins: 20.89,
+    Green_Bay_Packers: 26.05,
+    Cincinnati_Bengals: 20.48,
+    New_York_Jets: 18.20,
+    Los_Angeles_Rams: 20.8,
+    Dallas_Cowboys: 16.82,
+    Jacksonville_Jaguars: 17.15,
+    Pittsburgh_Steelers: 23.16,
+    Cleveland_Browns: 15.36,
+    Chicago_Bears: 18.34,
+    Seattle_Seahawks: 21.8,
+    Indianapolis_Colts: 19.05,
+    Atlanta_Falcons: 17.04,
+    Minnesota_Vikings: 24.05,
+    Arizona_Cardinals: 19.86,
+    Los_Angeles_Chargers: 21.52,
+    Tampa_Bay_Buccaneers: 20.59,
+    Tennessee_Titans: 14.71,
+    New_Orleans_Saints: 16.01,
+    Washington_Commanders: 20.55,
+    Las_Vegas_Raiders: 12.65,
+    New_England_Patriots: 13.93,
+    Denver_Broncos: 20.38,
+    New_York_Giants: 12.45,
+    Carolina_Panthers: 11.72,
 };
 
 const rounding = num => Math.round(num * 100) / 100;
@@ -65,7 +66,7 @@ const getEspnData = game => {
 };
 
 const getPffWebsiteData = game => {
-    const json = fs.readFileSync(`./csv/pffRankingsWeek${WEEK}.json`, 'utf8');
+    const json = fs.readFileSync(`./csv/pffRankingsWeek${week}.json`, 'utf8');
     const pff = JSON.parse(json);
     const awayPff = pff.find(team => game.away === team.team).ranking;
     const homePff = pff.find(team => game.home === team.team).ranking;
@@ -78,7 +79,7 @@ const handler = async () => {
     let header;
     const end = [];
     const envFactors = [];
-    const weekData = await nflGames.handler(WEEK);
+    const weekData = await nflGames.handler(week);
     const { games, lastWeekGames } = weekData;
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM football_teams`);
@@ -93,7 +94,7 @@ const handler = async () => {
         let espn = home.espn_api - away.espn_api;
         const spread = env.handler(
             game,
-            WEEK,
+            week,
             lastWeekGames,
             away,
             home,
@@ -111,7 +112,7 @@ const handler = async () => {
         homeSpread = rounding(spread + ffp) * -1;
         const homeffp = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
         if (day > 2) {
-            const espnWebsite = getEspnData(game, WEEK);
+            const espnWebsite = getEspnData(game, week);
             homeSpread = rounding(spread + espnWebsite) * -1;
             const homeEspnWebsite =
                 homeSpread > 0 ? `+${homeSpread}` : homeSpread;
@@ -211,7 +212,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile(`./csv/nflModelWeek${WEEK}.csv`, csvFromGames, err => {
+    fs.writeFile(`./csv/nflModelWeek${week}.csv`, csvFromGames, err => {
         if (err) console.log(err);
         else console.log('model csv file written');
     });
@@ -242,7 +243,7 @@ const handler = async () => {
         header,
         separator: ',',
     });
-    fs.writeFile(`./csv/envFactorsWeek${WEEK}.csv`, csvEnvFactors, err => {
+    fs.writeFile(`./csv/envFactorsWeek${week}.csv`, csvEnvFactors, err => {
         if (err) console.log(err);
         else console.log('env csv file written');
     });
