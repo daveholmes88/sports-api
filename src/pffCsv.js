@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { week } = require('./variables/nfl')
 
 const rename = {
     SF: 'San Francisco 49ers',
@@ -35,9 +36,7 @@ const rename = {
     CAR: 'Carolina Panthers',
 };
 
-const WEEK = 12
-
-fs.readFile(`./csv/pff-ratings-week${WEEK}.csv`, 'utf8', (err, data) => {
+fs.readFile(`./csv/pff-ratings-week${week}.csv`, 'utf8', (err, data) => {
     if (err) {
         console.error(err);
         return;
@@ -58,7 +57,7 @@ fs.readFile(`./csv/pff-ratings-week${WEEK}.csv`, 'utf8', (err, data) => {
         }
     }
     const jsonString = JSON.stringify(teams);
-    fs.writeFile(`./csv/pffRankingsWeek${WEEK}.json`, jsonString, err => {
+    fs.writeFile(`./csv/pffRankingsWeek${week}.json`, jsonString, err => {
         if (err) {
             console.error(err);
             return;
