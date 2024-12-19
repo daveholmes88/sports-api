@@ -102,11 +102,27 @@ const sameDivision = game => {
 
 const rounding = num => Math.round(num * 100) / 100;
 
-const getYesterdayDate = date => {
+const getDateGameInfo = async (date, lastWeek, daysAgo) => {
+    date.setDate(date.getDate() - 1)
     const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
-    return `${year}${month}${day}`;
+    const newDate =`${year}${month}${day}`;
+    const jsonGames = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${newDate}`
+    );
+    played = []
+    const games = await jsonGames.json();
+    if (games.events.length > 0) {
+        games.events.forEach(g => {
+            const gameArray = g.name.split(' at ');
+            const home = gameArray[1];
+            const away = gameArray[0];
+            const overtime = g.competitions[0].status.period === 5;
+            played.push({ home, away, overtime });
+        });
+    }
+    lastWeek[daysAgo] = played
 };
 
 const checkPlayedYesterday = (game, yesterdayGames) => {
@@ -122,6 +138,29 @@ const checkPlayedYesterday = (game, yesterdayGames) => {
     if (homePlayed) impact = -7;
     return impact;
 };
+const checkPlayedLastWeek = (game, lastWeek) => {
+    const { away, home } = game;
+    let impact = 0;
+    let awayPlayed = 0;
+    let homePlayed = 0;
+    for (let i = 1; i < 7; i++) {
+        const filteredAway = lastWeek[i].find(y => y.home === away || y.away === away);
+        const filteredHome = lastWeek[i].find(y => y.home === home || y.away === home);
+        if (filteredAway) awayPlayed += 1;
+        if (filteredHome) homePlayed += 1;
+        if (i === 3) {
+            if (awayPlayed > 1) impact += 3;
+            if (homePlayed > 1) impact -= 3;
+        }
+        if (i === 5) {
+            if (awayPlayed > 3) impact += 3;
+            if (homePlayed > 3) impact -= 3;
+        }
+    }
+    if (awayPlayed > 4) impact += 3;
+    if (homePlayed > 4) impact -= 3;
+    return impact
+}
 
 const handler = async () => {
     const d = new Date();
@@ -135,21 +174,10 @@ const handler = async () => {
         `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date}`
     );
     const games = await jsonGames.json();
-    d.setDate(d.getDate() - 1);
-    const yesterday = getYesterdayDate(d);
-    const yesterdayJsonGames = await fetch(
-        `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${yesterday}`
-    );
-    const yesterdayGames = await yesterdayJsonGames.json();
-    const playedYesterday = [];
-    if (yesterdayGames.events.length > 0) {
-        yesterdayGames.events.forEach(g => {
-            const gameArray = g.name.split(' at ');
-            const home = gameArray[1];
-            const away = gameArray[0];
-            const overtime = g.competitions[0].status.period === 5;
-            playedYesterday.push({ home, away, overtime });
-        });
+    console.log('yesterday', d)
+    lastWeek = {}
+    for (let i = 1; i < 7; i++) {
+        await getDateGameInfo(d, lastWeek, i);
     }
     const todayGames = [];
     games.events.forEach(game => {
@@ -176,8 +204,10 @@ const handler = async () => {
         spread += homeField;
         const division = sameDivision(game);
         spread += division;
-        const yesterdayCheck = checkPlayedYesterday(game, playedYesterday);
+        const yesterdayCheck = checkPlayedYesterday(game, lastWeek[1]);
         spread += yesterdayCheck;
+        const lastWeekGames = checkPlayedLastWeek(game, lastWeek);
+        spread += lastWeekGames;
         spread = spread / 5;
         let homeSpread = rounding(dbRating + spread) * -1;
         homeSpread = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
