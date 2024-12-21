@@ -174,7 +174,6 @@ const handler = async () => {
         `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date}`
     );
     const games = await jsonGames.json();
-    console.log('yesterday', d)
     lastWeek = {}
     for (let i = 1; i < 7; i++) {
         await getDateGameInfo(d, lastWeek, i);
