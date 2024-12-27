@@ -111,7 +111,7 @@ const handler = async () => {
         const ffp = home.ffp_power - away.ffp_power;
         homeSpread = rounding(spread + ffp) * -1;
         const homeffp = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
-        if (day > 2) {
+        if (day > 1) {
             const espnWebsite = getEspnData(game, week);
             homeSpread = rounding(spread + espnWebsite) * -1;
             const homeEspnWebsite =
@@ -166,7 +166,7 @@ const handler = async () => {
             ]);
         }
     });
-    if (day < 3) {
+    if (day < 2) {
         header = [
             'Home Team',
             'Home FPI',
