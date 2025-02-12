@@ -1,3 +1,3 @@
-const week = 17;
+const week = 1;
 
 module.exports = { week };

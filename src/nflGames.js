@@ -165,49 +165,50 @@ const handler = async week => {
         );
         if (recent.length > 1) game.allAway = true;
     }
-    const jsonLastWeek = await fetch(
-        `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=${
-            week - 1
-        }`
-    );
-    const lastWeekData = await jsonLastWeek.json();
+    // const jsonLastWeek = await fetch(
+    //     `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2024&seasontype=2&week=${
+    //         week - 1
+    //     }`
+    // );
+    // const lastWeekData = await jsonLastWeek.json();
+    const lastWeekData = []
     const lastWeekGames = [];
-    for (const game of lastWeekData.events) {
-        const id = game.id;
-        const gameArray = game.name.split(' at ');
-        const gameObj = {};
-        gameObj['homeTeam'] = gameArray[1];
-        gameObj['awayTeam'] = gameArray[0];
-        gameObj['date'] = game.date.split('T')[0];
-        game.competitions[0].competitors.forEach(c => {
-            if (c['homeAway'] === 'home') {
-                gameObj['homeScore'] = parseInt(c.score);
-            } else {
-                gameObj['awayScore'] = parseInt(c.score);
-            }
-        });
-        lastWeekGames.push(gameObj);
-    }
-    const winners = {};
-    for (let game of games) {
-        const sql =
-            'SELECT * FROM nfl_games WHERE home_team = $1 OR away_team = $1';
-        const allAwayGames = await client.query(sql, [game.away]);
-        let checks = allAwayGames.rows.filter(g => g.week > week - 5);
-        for (let g of checks) {
-            await getPreviousData(winners, g);
-        }
-        const allHomeGames = await client.query(sql, [game.home]);
-        checks = allHomeGames.rows.filter(g => g.week > week - 5);
-        for (let g of checks) {
-            await getPreviousData(winners, g);
-        }
-    }
-    for (let game of games) {
-        const { home, away } = game;
-        streakCheck(home, game, winners, week, 'home');
-        streakCheck(away, game, winners, week, 'away');
-    }
+    // for (const game of lastWeekData.events) {
+    //     const id = game.id;
+    //     const gameArray = game.name.split(' at ');
+    //     const gameObj = {};
+    //     gameObj['homeTeam'] = gameArray[1];
+    //     gameObj['awayTeam'] = gameArray[0];
+    //     gameObj['date'] = game.date.split('T')[0];
+    //     game.competitions[0].competitors.forEach(c => {
+    //         if (c['homeAway'] === 'home') {
+    //             gameObj['homeScore'] = parseInt(c.score);
+    //         } else {
+    //             gameObj['awayScore'] = parseInt(c.score);
+    //         }
+    //     });
+    //     lastWeekGames.push(gameObj);
+    // }
+    // const winners = {};
+    // for (let game of games) {
+    //     const sql =
+    //         'SELECT * FROM nfl_games WHERE home_team = $1 OR away_team = $1';
+    //     const allAwayGames = await client.query(sql, [game.away]);
+    //     let checks = allAwayGames.rows.filter(g => g.week > week - 5);
+    //     for (let g of checks) {
+    //         await getPreviousData(winners, g);
+    //     }
+    //     const allHomeGames = await client.query(sql, [game.home]);
+    //     checks = allHomeGames.rows.filter(g => g.week > week - 5);
+    //     for (let g of checks) {
+    //         await getPreviousData(winners, g);
+    //     }
+    // }
+    // for (let game of games) {
+    //     const { home, away } = game;
+    //     streakCheck(home, game, winners, week, 'home');
+    //     streakCheck(away, game, winners, week, 'away');
+    // }
     client.release();
     pool.end();
     return { games, lastWeekGames };
