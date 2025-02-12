@@ -4,7 +4,7 @@ const pkg = require('pg');
 require('dotenv').config();
 const env = require('./nflEnv');
 const nflGames = require('./nflGames');
-const { week } = require('./variables/nfl')
+const { week } = require('../variables/nfl')
 
 
 const { Pool } = pkg;

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { week } = require('./variables/nfl')
+const { week } = require('../variables/nfl')
 
 const rename = {
     SF: 'San Francisco 49ers',
