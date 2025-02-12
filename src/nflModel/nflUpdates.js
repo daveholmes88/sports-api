@@ -43,7 +43,7 @@ const getLastWeekGames = async () => {
 
 const saveOldInfo = (teams) => {
     const jsonString = JSON.stringify(teams)
-    fs.writeFile(`NFLWeek${week}.json`, jsonString, (err) => {
+    fs.writeFile(`../..csv/nflDB/NFLWeek${week}.json`, jsonString, (err) => {
         if (err) {
             console.error(err);
         }
