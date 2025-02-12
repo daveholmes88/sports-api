@@ -430,14 +430,11 @@ const longDistance = {
     ],
 };
 
-const thursday = {
-};
+const thursday = {};
 
-const friday = {
-};
+const friday = {};
 
-const monday = {
-};
+const monday = {};
 
 const pacific = [
     'Los Angeles Chargers',

@@ -30,7 +30,7 @@ const jeffData = {
     Miami_Dolphins: 21.31,
     Green_Bay_Packers: 27.72,
     Cincinnati_Bengals: 21.62,
-    New_York_Jets: 18.00,
+    New_York_Jets: 18.0,
     Los_Angeles_Rams: 21.97,
     Dallas_Cowboys: 18.12,
     Jacksonville_Jaguars: 15.83,

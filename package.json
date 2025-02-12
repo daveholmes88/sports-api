@@ -6,13 +6,10 @@
         "nflSchedule": "node src/nflSchedule",
         "scrapeTable": "node src/scrapeTable",
         "dkScrape": "node src/dkScrape",
-        "nflModel": "node src/nflModel",
-        "nflPff": "node src/pffRatings",
-        "nflPffCsv": "node src/pffCsv",
-        "nflEspn": "node src/espnFpi",
-        "nflJeff": "node src/jeff",
-        "nflScrapePff": "node src/pffCsv",
-        "getNflEspn": "python src/espn.py",
+        "nflModel": "node src/nflModel/nflModel",
+        "nflPffCsv": "node src/nflModel/pffCsv",
+        "nflScrapePff": "node src/nflModel/pffCsv",
+        "getNflEspn": "python src/nflModel/espn.py",
         "prettier": "npx prettier . --write"
     },
     "dependencies": {

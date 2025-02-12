@@ -4,8 +4,7 @@ const pkg = require('pg');
 require('dotenv').config();
 const env = require('./nflEnv');
 const nflGames = require('./nflGames');
-const { week } = require('../variables/nfl')
-
+const { week } = require('../variables/nfl');
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
@@ -34,7 +33,7 @@ const jeffData = {
     New_York_Jets: 16.65,
     Los_Angeles_Rams: 22.75,
     Dallas_Cowboys: 16.82,
-    Jacksonville_Jaguars: 15.80,
+    Jacksonville_Jaguars: 15.8,
     Pittsburgh_Steelers: 20.53,
     Cleveland_Browns: 13.39,
     Chicago_Bears: 16.73,

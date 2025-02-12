@@ -171,7 +171,7 @@ const handler = async week => {
     //     }`
     // );
     // const lastWeekData = await jsonLastWeek.json();
-    const lastWeekData = []
+    const lastWeekData = [];
     const lastWeekGames = [];
     // for (const game of lastWeekData.events) {
     //     const id = game.id;

@@ -7,7 +7,7 @@ require('dotenv').config();
 //     'New York Giants': 10, // not 17
 //     'Las Vegas Raiders': 11,
 //     'Houston Texans': 10, // not 16, 17
-//     'Carolina Panthers': 10, 
+//     'Carolina Panthers': 10,
 //     'Cincinnati Bengals': 10,
 // };
 
@@ -21,7 +21,7 @@ const teamsWithRookies = {
     'Chicago Bears': 10, // not 12, 13, 16, 17, 18
     'New England Patriots': 10,
     'Jacksonville Jaguars': 10,
-    'Houston Texans': 13, 
+    'Houston Texans': 13,
     'New York Jets': 11,
 };
 
@@ -61,21 +61,14 @@ const rookies = async () => {
                         homeTeam,
                         homeScore,
                         odds,
-                        week
+                        week,
                     ]);
                 }
             }
         }
         week++;
     }
-    const header = [
-        'Away',
-        'Away Score',
-        'Home',
-        'Home Score',
-        'Odds',
-        'Week', 
-    ];
+    const header = ['Away', 'Away Score', 'Home', 'Home Score', 'Odds', 'Week'];
     console.log(check);
     const csvCheck = convertArrayToCSV(check, {
         header,

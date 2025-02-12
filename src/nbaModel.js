@@ -103,15 +103,15 @@ const sameDivision = game => {
 const rounding = num => Math.round(num * 100) / 100;
 
 const getDateGameInfo = async (date, lastWeek, daysAgo) => {
-    date.setDate(date.getDate() - 1)
+    date.setDate(date.getDate() - 1);
     const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
-    const newDate =`${year}${month}${day}`;
+    const newDate = `${year}${month}${day}`;
     const jsonGames = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${newDate}`
     );
-    played = []
+    played = [];
     const games = await jsonGames.json();
     if (games.events.length > 0) {
         games.events.forEach(g => {
@@ -122,7 +122,7 @@ const getDateGameInfo = async (date, lastWeek, daysAgo) => {
             played.push({ home, away, overtime });
         });
     }
-    lastWeek[daysAgo] = played
+    lastWeek[daysAgo] = played;
 };
 
 const checkPlayedYesterday = (game, yesterdayGames) => {
@@ -144,8 +144,12 @@ const checkPlayedLastWeek = (game, lastWeek) => {
     let awayPlayed = 0;
     let homePlayed = 0;
     for (let i = 1; i < 7; i++) {
-        const filteredAway = lastWeek[i].find(y => y.home === away || y.away === away);
-        const filteredHome = lastWeek[i].find(y => y.home === home || y.away === home);
+        const filteredAway = lastWeek[i].find(
+            y => y.home === away || y.away === away
+        );
+        const filteredHome = lastWeek[i].find(
+            y => y.home === home || y.away === home
+        );
         if (filteredAway) awayPlayed += 1;
         if (filteredHome) homePlayed += 1;
         if (i === 3) {
@@ -159,8 +163,8 @@ const checkPlayedLastWeek = (game, lastWeek) => {
     }
     if (awayPlayed > 4) impact += 3;
     if (homePlayed > 4) impact -= 3;
-    return impact
-}
+    return impact;
+};
 
 const handler = async () => {
     const d = new Date();
@@ -174,7 +178,7 @@ const handler = async () => {
         `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date}`
     );
     const games = await jsonGames.json();
-    lastWeek = {}
+    lastWeek = {};
     for (let i = 1; i < 7; i++) {
         await getDateGameInfo(d, lastWeek, i);
     }
