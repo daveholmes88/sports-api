@@ -1,8 +1,8 @@
-import pkg from 'pg';
-import fs from 'fs'; 
+const pkg = require('pg');
+const fs = require('fs');
 
 const { Pool } = pkg
-const DATE = '20250211'
+const DATE = '20250212'
 const PASSWORD = process.env.PASSWORD;
 
 const pool = new Pool({
@@ -44,7 +44,13 @@ const rounded = num => Math.round(num * 100) / 100;
 
 const saveOldInfo = (teams) => {
     const jsonString = JSON.stringify(teams)
-    fs.writeFile(`../csv/nbaDB/NBA${DATE}.json`, jsonString, (err) => {
+    fs.writeFile(`./csv/nbaDB/NBA${DATE}.json`, jsonString, (err) => {
+        if (err) {
+            console.error(err);
+        }
+        console.log('JSON file has been created successfully!');
+    });
+    fs.writeFile(`./src/nbaData.json`, jsonString, (err) => {
         if (err) {
             console.error(err);
         }
