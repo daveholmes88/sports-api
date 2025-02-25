@@ -2,7 +2,7 @@ const pkg = require('pg');
 const fs = require('fs');
 
 const { Pool } = pkg
-const DATE = '20250213'
+const DATE = '20250224'
 const PASSWORD = process.env.PASSWORD;
 
 const pool = new Pool({
@@ -85,7 +85,6 @@ const updateInfo = async () => {
         }
     }
     for (let team of teams) {
-        // console.log(team)
         await pool.query(`UPDATE nba_teams 
             SET rating = ${team.rating}
             WHERE id = ${team.id};`)

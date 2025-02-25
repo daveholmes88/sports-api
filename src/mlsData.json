@@ -1,0 +1,182 @@
+[
+    {
+        "id": 183,
+        "name": "Columbus Crew",
+        "rating": 0.65,
+        "xg": 0.58
+    },
+    {
+        "id": 184,
+        "name": "Colorado Rapids",
+        "rating": -0.12,
+        "xg": -0.44
+    },
+    {
+        "id": 18267,
+        "name": "FC Cincinnati",
+        "rating": 0.37,
+        "xg": 0.43
+    },
+    {
+        "id": 182,
+        "name": "Chicago Fire FC",
+        "rating": -0.67,
+        "xg": 0.52
+    },
+    {
+        "id": 193,
+        "name": "D.C. United",
+        "rating": -0.43,
+        "xg": -0.58
+    },
+    {
+        "id": 18418,
+        "name": "Atlanta United FC",
+        "rating": 0.13,
+        "xg": -0.02
+    },
+    {
+        "id": 21300,
+        "name": "Charlotte FC",
+        "rating": 0.12,
+        "xg": 0.23
+    },
+    {
+        "id": 20232,
+        "name": "Inter Miami CF",
+        "rating": 0.64,
+        "xg": 0.75
+    },
+    {
+        "id": 6077,
+        "name": "Houston Dynamo FC",
+        "rating": 0.11,
+        "xg": 0.17
+    },
+    {
+        "id": 187,
+        "name": "LA Galaxy",
+        "rating": 0.82,
+        "xg": 0.31
+    },
+    {
+        "id": 18966,
+        "name": "LAFC",
+        "rating": 0.55,
+        "xg": 0.57
+    },
+    {
+        "id": 9720,
+        "name": "CF Montréal",
+        "rating": -0.34,
+        "xg": 0.18
+    },
+    {
+        "id": 20906,
+        "name": "Austin FC",
+        "rating": -0.06,
+        "xg": -0.08
+    },
+    {
+        "id": 17362,
+        "name": "Minnesota United FC",
+        "rating": 0.02,
+        "xg": 0.43
+    },
+    {
+        "id": 18986,
+        "name": "Nashville SC",
+        "rating": -0.4,
+        "xg": -0.37
+    },
+    {
+        "id": 189,
+        "name": "New England Revolution",
+        "rating": -0.66,
+        "xg": -0.49
+    },
+    {
+        "id": 17606,
+        "name": "New York City FC",
+        "rating": 0.15,
+        "xg": 0.43
+    },
+    {
+        "id": 185,
+        "name": "FC Dallas",
+        "rating": -0.06,
+        "xg": 0.17
+    },
+    {
+        "id": 12011,
+        "name": "Orlando City SC",
+        "rating": 0.04,
+        "xg": 0.17
+    },
+    {
+        "id": 190,
+        "name": "New York Red Bulls",
+        "rating": 0.29,
+        "xg": 0.29
+    },
+    {
+        "id": 9723,
+        "name": "Portland Timbers",
+        "rating": 0,
+        "xg": 0.14
+    },
+    {
+        "id": 10739,
+        "name": "Philadelphia Union",
+        "rating": 0.23,
+        "xg": -0.05
+    },
+    {
+        "id": 4771,
+        "name": "Real Salt Lake",
+        "rating": -0.1,
+        "xg": -0.06
+    },
+    {
+        "id": 22529,
+        "name": "San Diego FC",
+        "rating": -0.4,
+        "xg": null
+    },
+    {
+        "id": 191,
+        "name": "San Jose Earthquakes",
+        "rating": -0.02,
+        "xg": 0
+    },
+    {
+        "id": 186,
+        "name": "Sporting Kansas City",
+        "rating": -0.54,
+        "xg": -0.14
+    },
+    {
+        "id": 9726,
+        "name": "Seattle Sounders FC",
+        "rating": 0.39,
+        "xg": 0.49
+    },
+    {
+        "id": 21812,
+        "name": "St. Louis CITY SC",
+        "rating": -0.27,
+        "xg": -0.07
+    },
+    {
+        "id": 7318,
+        "name": "Toronto FC",
+        "rating": -0.54,
+        "xg": -0.3
+    },
+    {
+        "id": 9727,
+        "name": "Vancouver Whitecaps",
+        "rating": 0.16,
+        "xg": 0.6
+    }
+]
