@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const date = '20250222'
+const date = '20250223'
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -56,12 +56,17 @@ const handler = async () => {
         const homeTeam = teams.find(team => home === team.name);
         const dbRating = homeTeam.rating - awayTeam.rating;
         const homeSpread = rounding(dbRating + 0.5) * -1;
+        const xgRating = homeTeam.xg - awayTeam.xg
+        const homeXg = rounding(xgRating + 0.5) * -1;
         return [
             home,
             homeTeam.rating,
+            homeTeam.xg,
             away,
             awayTeam.rating,
+            awayTeam.xg
             `${home} ${homeSpread}`,
+            `${home} ${homeXg}`,
             homeOdds,
             drawOdds,
             awayOdds,
