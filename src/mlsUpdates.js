@@ -2,7 +2,7 @@ const pkg = require('pg');
 const fs = require('fs');
 
 const { Pool } = pkg
-const DATE = '20241019'
+const DATE = '20250511'
 const PASSWORD = process.env.PASSWORD;
 
 const pool = new Pool({
@@ -14,6 +14,39 @@ const pool = new Pool({
 //     rejectUnauthorized: false
 //   }
 });
+
+const xg = {
+    'Chicago Fire FC': -0,
+    'Columbus Crew': 0.6,
+    'Colorado Rapids': -1.8,
+    'FC Dallas': 0.8,
+    'Sporting Kansas City': -0.3,
+    'LA Galaxy': -1.3,
+    'New England Revolution': -0.6,
+    'New York Red Bulls': -0.7,
+    'San Jose Earthquakes': 0.3,
+    'D.C. United': -1.4,
+    'Real Salt Lake': -0.3,
+    'Houston Dynamo FC': 0.8, 
+    'Toronto FC': 1.4,
+    'CF Montréal': 1.0,
+    'Portland Timbers': -2.1,
+    'Seattle Sounders FC': 1.3,
+    'Vancouver Whitecaps': 2.1,
+    'Philadelphia Union': -1.1,
+    'Orlando City SC': 1.1,
+    'Minnesota United FC': -0.7,
+    'New York City FC': -1.6,
+    'FC Cincinnati': 0.7,
+    'Atlanta United FC': -1.0,
+    'LAFC': 0.7,
+    'Nashville SC': 0.6,
+    'Inter Miami CF': 1.6,
+    'Austin FC': 0.3,
+    'Charlotte FC': -1.3,
+    'St. Louis CITY SC': 1.8,
+    'San Diego FC': 1.3,
+}
 
 const getLastNightGames = async () => {
     const jsonLastNight = await fetch(
@@ -79,16 +112,19 @@ const updateInfo = async () => {
             const netScore = g.homeScore - g.awayScore
             const homeTeam = teams.find(t => t.name === g.homeTeam)
             const awayTeam = teams.find(t => t.name === g.awayTeam)
+            const homeName = homeTeam.name
+            const awayName = awayTeam.name
             homeTeam.rating = rounded((netScore + awayTeam.rating)*0.1 + (homeTeam.rating * 0.9))
             awayTeam.rating = rounded((netScore * -1 + homeTeam.rating)*0.1 + (awayTeam.rating * 0.9))
+            homeTeam.xg = rounded((xg[homeName] + awayTeam.xg)*0.1 + (homeTeam.xg * 0.9))
+            awayTeam.xg = rounded((xg[awayName] + homeTeam.xg)*0.1 + (awayTeam.xg * 0.9))
             await pool.query(`INSERT INTO mls_games (id, home_team, away_team, home_score, away_score, date)
                 VALUES (${g.id}, '${g.homeTeam}', '${g.awayTeam}', ${g.homeScore}, ${g.awayScore}, '${g.date}')`)
         }
     }
     for (let team of teams) {
-        // console.log(team)
         await pool.query(`UPDATE mls_teams 
-            SET rating = ${team.rating}
+            SET rating = ${team.rating}, xg = ${team.xg}
             WHERE id = ${team.id};`)
     }
     client.release();

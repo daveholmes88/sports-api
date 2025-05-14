@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const date = '20250223'
+const date = '20250514'
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -34,7 +34,8 @@ const handler = async () => {
         let homeOdds = 'n/a';
         let awayOdds = 'n/a';
         let drawOdds = 'n/a';
-        if (game.competitions[0]?.odds[0]) {
+        console.log(game.competitions[0])
+        if (game.competitions[0]?.odds) {
             let moneyline = game.competitions[0].odds[0].moneyline ? game.competitions[0].odds[0].moneyline : game.competitions[0].odds[1].moneyline
             homeOdds = moneyline.home.close.odds
             awayOdds = moneyline.away.close.odds
@@ -64,7 +65,7 @@ const handler = async () => {
             homeTeam.xg,
             away,
             awayTeam.rating,
-            awayTeam.xg
+            awayTeam.xg,
             `${home} ${homeSpread}`,
             `${home} ${homeXg}`,
             homeOdds,
@@ -75,9 +76,12 @@ const handler = async () => {
     const header = [
         'Home Team',
         'Home DB Rating',
+        'Home XG Rating',
         'Away Team',
         'Away DB Rating',
+        'Away XG Rating',
         'DB Spread',
+        'XG Spread',
         'Home Odds',
         'Draw Odds',
         'Away Odds',
