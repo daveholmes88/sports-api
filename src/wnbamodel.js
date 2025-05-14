@@ -107,7 +107,7 @@ const checkPlayedLastWeek = (game, lastWeek) => {
 const handler = async () => {
     const d = new Date();
     // const date = d.toISOString().slice(0, 10).replace(/-/g, '');
-    const date = '20250518'
+    const date = '20250516'
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM wnba_teams`);
     const teams = result.rows;
@@ -124,8 +124,10 @@ const handler = async () => {
     const todayGames = [];
     games.events.forEach(game => {
         let odds = 'n/a';
+        let total = 'n/a'
         if (game.competitions[0]?.odds) {
             odds = game.competitions[0]?.odds[0].details;
+            total = game.competitions[0]?.odds[0].overUnder;
         }
         const gameArray = game.name.split(' at ');
         todayGames.push({
@@ -134,13 +136,15 @@ const handler = async () => {
             odds,
             neutral: game.competitions[0].neutralSite,
             id: game.id,
+            total
         });
     });
     const final = todayGames.map(game => {
-        const { odds, home, away } = game;
+        const { odds, home, away, total } = game;
         const awayTeam = teams.find(team => away === team.name);
         const homeTeam = teams.find(team => home === team.name);
         const dbRating = homeTeam.rating - awayTeam.rating;
+        const halfRating = homeTeam.half - awayTeam.half;
         let spread = 0;
         const homeField = checkHomeField(game);
         spread += homeField;
@@ -151,6 +155,16 @@ const handler = async () => {
         spread = spread / 5;
         let homeSpread = rounding(dbRating + spread) * -1;
         homeSpread = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        let halfSpread = rounding(halfRating + spread/2) * -1;
+        halfSpread = halfSpread > 0? `+${halfSpread}` : halfSpread;
+        let totalRating = 'n/a'
+        if (homeTeam.total) {
+            totalRating = (homeTeam.total + awayTeam.total) / 2
+        }
+        let halfTotal = 'n/a'
+        if (homeTeam.half_total) {
+            halfTotal = (homeTeam.half_total + awayTeam.half_total) / 2
+        }
         return [
             home,
             homeTeam.rating,
@@ -159,6 +173,12 @@ const handler = async () => {
             spread,
             `${home} ${homeSpread}`,
             odds,
+            totalRating,
+            total,
+            `${home} ${halfSpread}`,
+            'half odds coming', 
+            halfTotal,
+            'half total coming'
         ];
     });
     const header = [
@@ -168,7 +188,13 @@ const handler = async () => {
         'Away DB Rating',
         'Environmental Factors',
         'DB Spread',
-        'ESPN Spread',
+        'Spread',
+        'Total',
+        'Over/Under',
+        'DB Half Spread',
+        'Half Spread', 
+        'Half Total', 
+        'Half Over/Under'
     ];
     const csvFromGames = convertArrayToCSV(final, {
         header,
