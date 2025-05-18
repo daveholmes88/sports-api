@@ -2,7 +2,7 @@ const pkg = require('pg');
 const fs = require('fs');
 
 const { Pool } = pkg
-const DATE = '20240518'
+const DATE = '20250517'
 const PASSWORD = process.env.PASSWORD;
 
 const pool = new Pool({
@@ -74,7 +74,7 @@ const updateInfo = async () => {
     if (games.length === newGames.length) {
         saveOldInfo(teams)
     }
-    console.log(teams)
+    console.log(newGames)
     for (let g of newGames) {
         if (g.homeScore !== 0 & g.awayScore !== 0) {
             const netScore = g.homeScore - g.awayScore;
@@ -86,20 +86,20 @@ const updateInfo = async () => {
             homeTeam.rating = rounded((netScore + awayTeam.rating)*0.1 + (homeTeam.rating * 0.9))
             awayTeam.rating = rounded((netScore * -1 + homeTeam.rating)*0.1 + (awayTeam.rating * 0.9))
             homeTeam.half = rounded((halfScore + awayTeam.half)*0.1 + (homeTeam.half * 0.9))
-            awayTeam.half = rounded((halfScore * -1 + homeTeam.rating)*0.1 + (awayTeam.rating * 0.9))
-            homeTeam.total = rounded((total*0.1) + (homeTeam.total*0.9))
-            awayTeam.total = rounded((total*0.1) + (awayTeam.total*0.9))
-            homeTeam.total = rounded((halfTotal*0.1) + (homeTeam.half_total*0.9))
-            awayTeam.total = rounded((halfTotal*0.1) + (awayTeam.half_total*0.9))
+            awayTeam.half = rounded((halfScore * -1 + homeTeam.half)*0.1 + (awayTeam.half * 0.9))
+            // homeTeam.total = rounded((total*0.1) + (homeTeam.total*0.9))
+            // awayTeam.total = rounded((total*0.1) + (awayTeam.total*0.9))
+            // homeTeam.half_total = rounded((halfTotal*0.1) + (homeTeam.half_total*0.9))
+            // awayTeam.half_total = rounded((halfTotal*0.1) + (awayTeam.half_total*0.9))
             await pool.query(`INSERT INTO wnba_games (id, home_team, away_team, home_score, away_score, home_half_score, away_half_score, date)
                 VALUES (${g.id}, '${g.homeTeam}', '${g.awayTeam}', ${g.homeScore}, ${g.awayScore}, ${g.homeHalfScore}, ${g.awayHalfScore}, '${g.date}')`)
         }
     }
-    console.log(teams)
     for (let team of teams) {
+        const { half, rating, name } = team
         await pool.query(`UPDATE wnba_teams 
-            SET rating = ${team.rating}, half=${team.half}
-            WHERE id = ${team.id};`)
+            SET rating = ${rating}, half=${half}
+            WHERE name = '${name}';`)
     }
     client.release();
     pool.end();

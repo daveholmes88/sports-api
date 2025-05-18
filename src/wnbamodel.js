@@ -106,8 +106,8 @@ const checkPlayedLastWeek = (game, lastWeek) => {
 
 const handler = async () => {
     const d = new Date();
-    // const date = d.toISOString().slice(0, 10).replace(/-/g, '');
-    const date = '20250516'
+    const date = d.toISOString().slice(0, 10).replace(/-/g, '');
+    // const date = '20250516'
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM wnba_teams`);
     const teams = result.rows;
