@@ -88,8 +88,8 @@ const checkPlayedLastWeek = (game, lastWeek) => {
         const filteredHome = lastWeek[i].find(
             y => y.home === home || y.away === home
         );
-        if (filteredAway) awayPlayed += 2;
-        if (filteredHome) homePlayed += 2;
+        if (filteredAway) awayPlayed += 1;
+        if (filteredHome) homePlayed += 1;
         if (i === 3) {
             if (awayPlayed > 1) impact += 5;
             if (homePlayed > 1) impact -= 5;
