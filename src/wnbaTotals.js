@@ -18,7 +18,6 @@ const pool = new Pool({
 const rounded = num => Math.round(num * 100) / 100;
 
 const updateInfo = async () => {
-    const games = await getLastNightGames()
     const client = await pool.connect();
     const resultTeams = await pool.query('SELECT * FROM wnba_teams;')
     const resultGames = await pool.query('SELECT * FROM wnba_games;')
@@ -41,8 +40,8 @@ const updateInfo = async () => {
     }
     for (let team of teams) {
         const {name, id} = team 
-        const finals = final[team.name]
-        const halves = half[team.name]
+        const finals = final[name]
+        const halves = half[name]
         let finalSum = 0
         let halfSum = 0
         finals.forEach(game => finalSum += game)
@@ -51,7 +50,7 @@ const updateInfo = async () => {
         halfSum = rounded(halfSum / halves.length)
         await pool.query(`UPDATE wnba_teams 
             SET total = ${finalSum}, half = ${halfSum}
-            WHERE id = ${team.id};`)
+            WHERE id = ${id};`)
     }
     client.release();
     pool.end();

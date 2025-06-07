@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
-const date = '20250514'
+const date = '20250607'
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -34,7 +34,6 @@ const handler = async () => {
         let homeOdds = 'n/a';
         let awayOdds = 'n/a';
         let drawOdds = 'n/a';
-        console.log(game.competitions[0])
         if (game.competitions[0]?.odds) {
             let moneyline = game.competitions[0].odds[0].moneyline ? game.competitions[0].odds[0].moneyline : game.competitions[0].odds[1].moneyline
             homeOdds = moneyline.home.close.odds
