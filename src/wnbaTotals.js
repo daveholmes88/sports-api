@@ -1,8 +1,6 @@
 const pkg = require('pg');
-const fs = require('fs');
 
 const { Pool } = pkg
-const DATE = '20240518'
 const PASSWORD = process.env.PASSWORD;
 
 const pool = new Pool({
@@ -25,7 +23,7 @@ const updateInfo = async () => {
     const savedGames = resultGames.rows
     final = {}
     half = {}
-    for (t in teams) {
+    for (t of teams) {
         final[t.name] = []
         half[t.name] = []
     }
@@ -39,7 +37,7 @@ const updateInfo = async () => {
         half[away_team].push(halfTotal)
     }
     for (let team of teams) {
-        const {name, id} = team 
+        const {name} = team 
         const finals = final[name]
         const halves = half[name]
         let finalSum = 0
@@ -49,8 +47,8 @@ const updateInfo = async () => {
         finalSum = rounded(finalSum / finals.length)
         halfSum = rounded(halfSum / halves.length)
         await pool.query(`UPDATE wnba_teams 
-            SET total = ${finalSum}, half = ${halfSum}
-            WHERE id = ${id};`)
+            SET total = ${finalSum}, half_total = ${halfSum}
+            WHERE name = '${name}';`)
     }
     client.release();
     pool.end();
