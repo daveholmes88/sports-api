@@ -157,14 +157,8 @@ const handler = async () => {
         homeSpread = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
         let halfSpread = rounding(halfRating + spread/2) * -1;
         halfSpread = halfSpread > 0? `+${halfSpread}` : halfSpread;
-        let totalRating = 'n/a'
-        if (homeTeam.total) {
-            totalRating = (homeTeam.total + awayTeam.total) / 2
-        }
-        let halfTotal = 'n/a'
-        if (homeTeam.half_total) {
-            halfTotal = (homeTeam.half_total + awayTeam.half_total) / 2
-        }
+        const totalRating = homeTeam.total ? rounding((homeTeam.total + awayTeam.total) / 2) : 'n/a'
+        const halfTotal = homeTeam.half_total ? rounding((homeTeam.half_total + awayTeam.half_total)) / 2 : 'n/a'
         return [
             home,
             homeTeam.rating,
