@@ -2,7 +2,7 @@ const pkg = require('pg');
 const fs = require('fs');
 
 const { Pool } = pkg
-const DATE = '20250615'
+const DATE = '20250704'
 const PASSWORD = process.env.PASSWORD;
 
 const pool = new Pool({
