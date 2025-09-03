@@ -19,45 +19,10 @@ const pool = new Pool({
     //   }
 });
 
-const jeffData = {
-    San_Francisco_49ers: 20.89,
-    Buffalo_Bills: 28.2,
-    Detroit_Lions: 29.85,
-    Kansas_City_Chiefs: 24.2,
-    Houston_Texans: 22.61,
-    Baltimore_Ravens: 28.36,
-    Philadelphia_Eagles: 27.69,
-    Miami_Dolphins: 21.8,
-    Green_Bay_Packers: 26.41,
-    Cincinnati_Bengals: 22.27,
-    New_York_Jets: 16.65,
-    Los_Angeles_Rams: 22.75,
-    Dallas_Cowboys: 16.82,
-    Jacksonville_Jaguars: 15.8,
-    Pittsburgh_Steelers: 20.53,
-    Cleveland_Browns: 13.39,
-    Chicago_Bears: 16.73,
-    Seattle_Seahawks: 20.83,
-    Indianapolis_Colts: 16.41,
-    Atlanta_Falcons: 18.51,
-    Minnesota_Vikings: 24.09,
-    Arizona_Cardinals: 18.86,
-    Los_Angeles_Chargers: 23.03,
-    Tampa_Bay_Buccaneers: 22.2,
-    Tennessee_Titans: 13.28,
-    New_Orleans_Saints: 13.96,
-    Washington_Commanders: 23.31,
-    Las_Vegas_Raiders: 14.66,
-    New_England_Patriots: 12.44,
-    Denver_Broncos: 22.7,
-    New_York_Giants: 11.88,
-    Carolina_Panthers: 10.83,
-};
-
 const rounding = num => Math.round(num * 100) / 100;
 
 const getEspnData = game => {
-    const json = fs.readFileSync('./csv/espn.json', 'utf8');
+    const json = fs.readFileSync('./csv/espnNfl.json', 'utf8');
     const fpi = JSON.parse(json);
     const awayFpi = fpi.find(team => game.away === team.name).rankings;
     const homeFpi = fpi.find(team => game.home === team.name).rankings;
@@ -115,47 +80,22 @@ const handler = async () => {
             homeSpread = rounding(spread + espnWebsite) * -1;
             const homeEspnWebsite =
                 homeSpread > 0 ? `+${homeSpread}` : homeSpread;
-            const awayJeffWeb = jeffData[awayTeam.replaceAll(' ', '_')];
-            const homeJeffWeb = jeffData[homeTeam.replaceAll(' ', '_')];
-            homeSpread = rounding(homeJeffWeb - awayJeffWeb + spread) * -1;
-            const jeffSpreadWeb =
-                homeSpread > 0 ? `+${homeSpread}` : homeSpread;
-            const pffWeb = getPffWebsiteData(game);
-            homeSpread = rounding(pffWeb + spread) * -1;
-            const pffSpreadWeb = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
             end.push([
                 home.team,
                 home.espn_api,
-                home.adjusted_dvoa,
-                home.jeff,
-                home.ffp_power,
                 away.team,
                 away.espn_api,
-                away.adjusted_dvoa,
-                away.jeff,
-                away.ffp_power,
                 rounding(spread),
                 `${homeTeam} ${homeEspn}`,
                 `${homeTeam} ${homeEspnWebsite}`,
-                `${homeTeam} ${homeDvoa}`,
-                `${homeTeam} ${homeJeff}`,
-                `${homeTeam} ${jeffSpreadWeb}`,
-                `${homeTeam} ${homeffp}`,
-                `${homeTeam} ${pffSpreadWeb}`,
                 game.espnOdds,
             ]);
         } else {
             end.push([
                 home.team,
                 home.espn_api,
-                home.adjusted_dvoa,
-                home.jeff,
-                home.ffp_power,
                 away.team,
                 away.espn_api,
-                away.adjusted_dvoa,
-                away.jeff,
-                away.ffp_power,
                 rounding(spread),
                 `${homeTeam} ${homeEspn}`,
                 `${homeTeam} ${homeDvoa}`,
@@ -168,42 +108,22 @@ const handler = async () => {
     if (day < 2) {
         header = [
             'Home Team',
-            'Home FPI',
-            'Home DVOA',
-            'Home Jeff',
-            'Home FPF',
+            'Home Ranking',
             'Away Team',
-            'Away FPI',
-            'Away DVOA',
-            'Away Jeff',
-            'Away PFF',
+            'Away Ranking',
             'Environmental Factors',
-            'ESPN FPI Spread',
-            'Adjusted DVOA Spread',
-            'Jeff Spread',
-            'PFF Spread',
+            'Database Spread',
             'ESPN Spread',
         ];
     } else {
         header = [
             'Home Team',
-            'Home FPI',
-            'Home DVOA',
-            'Home Jeff',
-            'Home FPF',
+            'Home Ranking',
             'Away Team',
-            'Away FPI',
-            'Away DVOA',
-            'Away Jeff',
-            'Away PFF',
+            'Away Ranking',
             'Environmental Factors',
-            'ESPN FPI DB Spread',
+            'Database Spread',
             'ESPN FPI Website',
-            'Adjusted DVOA Spread',
-            'Jeff DB Spread',
-            'Jeff Website',
-            'PFF DB Spread',
-            'PFF Website',
             'ESPN Spread',
         ];
     }
