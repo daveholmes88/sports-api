@@ -138,7 +138,17 @@ const timezones = {
     LosAngelesRams: 'pacific',
 };
 
-const bye = {};
+const bye = {
+    5: ['Atlanta Falcons', 'Chicago Bears', 'Green Bay Packers', 'Pitsburgh Steelers'], 
+    6: ['Houston Texans', 'Minnesota Vikings'],
+    7: ['Baltimore Ravens', 'Buffalo Bills'],
+    8: ['Arizona Cardinals', 'Detroit Lions', 'Jacksonville Jaguars', 'Las Vegas Raiders', 'Los Angeles Rams', 'Seattle Seahawks'],
+    9: ['Cleveland Browns', 'New York Jets', 'Philadelphia Eagles', 'Tampa Bay Buccaneers'],
+    10: ['Cincinnati Bengals', 'Dallas Cowboys', 'Kansas City Chiefs', 'Tennessee Titans'],
+    11: ['Indianapolis Colts', 'New Orleans Saints'],
+    12: ['Denver Broncos', 'Los Angeles Chargers', 'Miami Dolphins', 'Washington Commanders'],
+    14: ['Carolina Panthers', 'New England Patriots', 'New York Giants', 'San Francisco 49ers'],
+};
 
 const longDistance = {
     SeattleSeahawks: [
@@ -430,11 +440,52 @@ const longDistance = {
     ],
 };
 
-const thursday = {};
+const thursday = {
+    0: [],
+    1: ['Dallas Cowboys', 'Philadelphia Eagles'],
+    2: ['Washington Commanders', 'Green Bay Packers'],
+    3: ['Miami Dolphins', 'Buffalo Bills'],
+    4: ['Seattle Seahawks', 'Arizona Cardinals'],
+    5: ['San Francisco 49ers', 'Los Angeles Rams'],
+    6: ['Philadelphia Eagles', 'New York Giants'],
+    7: ['Pittsburgh Steelers', 'Cincinnati Bengals'],
+    8: ['Minnesota Vikings', 'Los Angeles Chargers'],
+    9: ['Baltimore Ravens', 'Miami Dolphins'],
+    10: ['Las Vegas Raiders', 'Denver Broncos'],
+    11: ['New York Jets', 'New England Patriots'],
+    12: ['Buffalo Bills', 'Houston Texans'],
+    13: ['Green Bay Packers', 'Detroit Lions', 'Kansas City Chiefs', 'Dallas Cowboys', 'Cincinnati Bengals', 'Baltimore Ravens'],
+    14: ['Dallas Cowboys', 'Detroit Lions'],
+    15: ['Atlanta Falcons', 'Tampa Bay Buccaneers'],
+    16: ['Los Angeles Rams', 'Seattle Seahaawks'],
+    17: ['Dallas Cowboys', 'Washington Commanders', 'Detroit Lions', 'Minnesota Vikings', 'Denver Broncos', 'Kansas City Chiefs'],
+};
 
-const friday = {};
+const friday = {
+    1: ['Kansas City Chiefs', 'Los Angeles Chargers'],
+    13: ['Chicago Bears', 'Philadelphia Eagles'],
+};
 
-const monday = {};
+const monday = {
+    0: [{ away: '', home: ''}],
+    1: [{ away: 'Minnesota Vikings', home: 'Chicago Bears'}],
+    2: [{ away: 'Tampa Bay Buccaneers', home: 'Houston Texans'}, { away: 'Los Angeles Chargers', home: 'Las Vegas Raiders'}],
+    3: [{ away: 'Detroit Lions', home: 'Baltimore Ravens'}],
+    4: [{ away: 'New York Jets', home: 'Miami Dolphins'}, { away: 'Cincinnati Benglas', home: 'Denver Broncos'}],
+    5: [{ away: 'Kansas City Chiefs', home: 'Jacksonville Jaguars'}],
+    6: [{ away: 'Buffalo Bills', home: 'Atlanta Falcons'}, { away: 'Chicago Bears', home: 'Washington Commanders'}],
+    7: [{ away: 'Tampa Bay Buccaneers', home: 'Detroit Lions'}, { away: 'Houston Texans', home: 'Seattle Seahawks'}],
+    8: [{ away: 'Washington Commanders', home: 'Kansas City Chiefs'}],
+    9: [{ away: 'Arizona Cardinals', home: 'Dallas Cowboys'}],
+    10: [{ away: 'Philadelphia Eagles', home: 'Green Bay Packers'}],
+    11: [{ away: 'Dallas Cowboys', home: 'Las Vegas Raiders'}],
+    12: [{ away: 'Carolina Panthers', home: 'San Francisco 49ers'}],
+    13: [{ away: 'New York Giants', home: 'New England Patroits'}],
+    14: [{ away: 'Philadelphia Eagles', home: 'Los Angeles Chargers'}],
+    15: [{ away: 'Miami Dolphins', home: 'Pittsburgh Steelers'}],
+    16: [{ away: 'San Francisco 49ers', home: 'Indianapolis Colts'}],
+    17: [{ away: 'Los Angeles Chargers', home: 'Atlanta Falcons'}],
+};
 
 const pacific = [
     'Los Angeles Chargers',
