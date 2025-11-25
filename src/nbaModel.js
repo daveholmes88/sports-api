@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const { Pool } = pkg;
 const PASSWORD = process.env.PASSWORD;
+const MEDIAN = 233.41;
 
 const pool = new Pool({
     user: 'davidholmes',
@@ -169,7 +170,7 @@ const checkPlayedLastWeek = (game, lastWeek) => {
 const handler = async () => {
     const d = new Date();
     const date = d.toISOString().slice(0, 10).replace(/-/g, '');
-    // const date = '20250415'
+    // const date = '20251111'
     const client = await pool.connect();
     const result = await pool.query(`SELECT * FROM nba_teams`);
     const teams = result.rows;
@@ -186,8 +187,10 @@ const handler = async () => {
     const todayGames = [];
     games.events.forEach(game => {
         let odds = 'n/a';
+        let total = 'n/a';
         if (game.competitions[0]?.odds) {
             odds = game.competitions[0]?.odds[0].details;
+            total = game.competitions[0]?.odds[0].overUnder;
         }
         const gameArray = game.name.split(' at ');
         todayGames.push({
@@ -196,12 +199,19 @@ const handler = async () => {
             odds,
             neutral: game.competitions[0].neutralSite,
             id: game.id,
+            total,
         });
     });
+    const json = fs.readFileSync('./csv/espnNba.json', 'utf8');
+    const fpi = JSON.parse(json);
     const final = todayGames.map(game => {
-        const { odds, home, away } = game;
+        const { odds, home, away, total } = game;
         const awayTeam = teams.find(team => away === team.name);
         const homeTeam = teams.find(team => home === team.name);
+        const awayFpi = fpi.find(team => game.away === team.name);
+        const homeFpi = fpi.find(team => game.home === team.name);
+        const awayEspnRating = awayFpi ? awayFpi.rankings : 0
+        const homeEspnRating = homeFpi ? homeFpi.rankings : 0
         const dbRating = homeTeam.rating - awayTeam.rating;
         let spread = 0;
         const homeField = checkHomeField(game);
@@ -215,24 +225,37 @@ const handler = async () => {
         spread = spread / 5;
         let homeSpread = rounding(dbRating + spread) * -1;
         homeSpread = homeSpread > 0 ? `+${homeSpread}` : homeSpread;
+        let espn = rounding(homeEspnRating - awayEspnRating + spread) * -1;
+        espn = espn > 0 ? `+${espn}` : espn;
+        const totalRating = rounding(homeTeam.total + awayTeam.total + MEDIAN)
         return [
             home,
             homeTeam.rating,
+            homeTeam.total,
             away,
             awayTeam.rating,
+            awayTeam.total,
             spread,
             `${home} ${homeSpread}`,
+            `${home} ${espn}`,
             odds,
+            totalRating,
+            total,
         ];
     });
     const header = [
         'Home Team',
         'Home DB Rating',
+        'Home Total Rating',
         'Away Team',
         'Away DB Rating',
+        "Away Total Rating",
         'Environmental Factors',
         'DB Spread',
         'ESPN Spread',
+        'Game Spread',
+        'Total DB',
+        'Total'
     ];
     const csvFromGames = convertArrayToCSV(final, {
         header,

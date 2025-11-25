@@ -2,8 +2,9 @@ const pkg = require('pg');
 const fs = require('fs');
 
 const { Pool } = pkg
-const DATE = '20250519'
+const DATE = '20251124'
 const PASSWORD = process.env.PASSWORD;
+const medianScore = 233.41
 
 const pool = new Pool({
   user: 'davidholmes',
@@ -75,19 +76,23 @@ const updateInfo = async () => {
     console.log(newGames)
     for (let g of newGames) {
         if (g.homeScore !== 0 & g.awayScore !== 0) {
-            const netScore = g.homeScore - g.awayScore
+            const netScore = g.homeScore - g.awayScore;
+            const totalScore = (g.homeScore + g.awayScore) - medianScore;
             const homeTeam = teams.find(t => t.name === g.homeTeam)
             const awayTeam = teams.find(t => t.name === g.awayTeam)
             homeTeam.rating = rounded((netScore + awayTeam.rating)*0.1 + (homeTeam.rating * 0.9))
             awayTeam.rating = rounded((netScore * -1 + homeTeam.rating)*0.1 + (awayTeam.rating * 0.9))
+            awayTeam.total = rounded((totalScore + homeTeam.total)*0.1 + (awayTeam.total * 0.9))
+            homeTeam.total = rounded((totalScore + awayTeam.total)*0.1 + (homeTeam.total * 0.9))
             await pool.query(`INSERT INTO nba_games (id, home_team, away_team, home_score, away_score, date)
                 VALUES (${g.id}, '${g.homeTeam}', '${g.awayTeam}', ${g.homeScore}, ${g.awayScore}, '${g.date}')`)
         }
     }
     for (let team of teams) {
+        const { rating, total, id} = team
         await pool.query(`UPDATE nba_teams 
-            SET rating = ${team.rating}
-            WHERE id = ${team.id};`)
+            SET rating = ${rating}, total = ${total}
+            WHERE id = ${id};`)
     }
     client.release();
     pool.end();
